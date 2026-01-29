@@ -79,9 +79,46 @@ const loader = {
 // ============================================================================
 // STATE WATCHING
 // ============================================================================
-
 /** @type {string[]} List of watched variable names */
 const watchedVars = [];
+
+/**
+ * Creates a deep proxy that watches for nested property changes
+ * @param {*} target - The object/array to watch
+ * @param {function} callback - Function to call on any change
+ * @returns {Proxy} Proxied version of the target
+ */
+function createDeepProxy(target, callback) {
+    if (typeof target !== 'object' || target === null) {
+        return target;
+    }
+    if (typeof callback !== 'function') {
+        throw new TypeError(
+            `HTTL-S watch(): Second parameter must be a function, got ${typeof callback}. ` +
+            `Did you accidentally call the function? Use like "watch('varName', ()=>setState())" not "watch('varName', setState())"`
+        );
+    }
+    return new Proxy(target, {
+        get(obj, prop) {
+            const value = obj[prop];
+            // Recursively proxy nested objects/arrays
+            if (typeof value === 'object' && value !== null) {
+                return createDeepProxy(value, callback);
+            }
+            return value;
+        },
+        set(obj, prop, value) {
+            obj[prop] = value;
+            callback(); // Trigger callback on any change
+            return true;
+        },
+        deleteProperty(obj, prop) {
+            delete obj[prop];
+            callback(); // Trigger on deletion
+            return true;
+        }
+    });
+}
 
 /**
  * Creates a watched global variable that triggers a callback on value changes
@@ -90,23 +127,45 @@ const watchedVars = [];
  * @param {*} [defaultValue=undefined] - Initial value for the variable
  */
 function watch(propName, cb, defaultValue = undefined) {
+    if (typeof cb !== 'function') {
+        throw new TypeError(
+            `HTTL-S watch(): Second parameter must be a function, got ${typeof cb}. ` +
+            `Did you accidentally call the function? Use like "watch('varName', ()=>setState())" not "watch('varName', setState())"`
+        );
+    }
     let _value = defaultValue;
+
     if (propName in window) {
         console.warn(`HTTL-S: "${propName}" already exists on window`);
+    }
+    console.log("watch", propName, cb, defaultValue);
+
+    // Wrap objects/arrays in proxy for deep watching
+    if (typeof defaultValue === 'object' && defaultValue !== null) {
+        _value = createDeepProxy(defaultValue, () => {
+            cb(propName, _value);
+        });
     }
 
     Object.defineProperty(window, propName, {
         get: function () { return _value; },
         set: function (value) {
-            _value = value;
-            cb(propName, value);
+            // Wrap new objects/arrays in proxy too
+            if (typeof value === 'object' && value !== null) {
+                _value = createDeepProxy(value, () => {
+                    cb(propName, _value);
+                });
+            } else {
+                _value = value;
+            }
+            cb(propName, _value);
         },
         configurable: true,
         enumerable: true
     });
+
     watchedVars.push(propName);
 }
-
 // ============================================================================
 // EXPRESSION EVALUATION HELPERS
 // ============================================================================
