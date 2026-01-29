@@ -362,7 +362,7 @@ function renderDataLoops() {
  * @param {boolean} options.templates - Whether to update templates
  * @param {boolean} options.conditions - Whether to update conditions
  */
-const setState = ({
+function setState({
     loopid = false,
     stateId = false,
     ifid = false,
@@ -374,7 +374,7 @@ const setState = ({
     dataloops = true,
     templates = false,
     conditions = true
-} = {}) => {
+} = {}) {
     try {
         if (showloader) loader.show();
 
