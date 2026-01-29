@@ -1,55 +1,62 @@
 # HTTL-S - HyperText Templating Language (Simple)
 
-A lightweight client-side templating framework for building dynamic HTML pages.
+A lightweight client-side templating framework for building dynamic HTML pages without build tools or Node.js.
 
 ## Features
 
 - ✅ **For Loops** - Iterate over arrays directly in HTML
-- ✅ **Nested If-Else** - Full support for deeply nested conditional rendering
-- ✅ **Template Includes** - Import HTML as reusable components
+- ✅ **Data Loops** - Special loop for table rows (works in `<tbody>`)
+- ✅ **Nested If-Else** - Full support for deeply nested conditionals
+- ✅ **State Elements** - Simple reactive value display
+- ✅ **Template Includes** - Import HTML as reusable components with CSS isolation
 - ✅ **State Watching** - Auto-update UI when variables change
-- ✅ **Table Support** - Special `data-loop` approach for proper table rendering
-- ✅ **TypeScript Support** - IntelliSense via included `.d.ts` file
+- ✅ **TypeScript Support** - IntelliSense via `.d.ts` file
+- ✅ **VS Code Support** - Snippets and HTML custom data
+
+---
 
 ## Installation
 
-Include the script in your HTML file (after body content):
-
+### Step 1: Include the script
 ```html
 <script src="https://cdn.jsdelivr.net/gh/KTBsomen/httl-s@main/statejs.js"></script>
 ```
 
-Then initialize:
-
-```html
-<script>
-  initState();
-</script>
+### Step 2: Set up watched variables
+```javascript
+// Create reactive variables that trigger UI updates
+watch('myVar', (propName, value) => {
+  setState({ /* options */ });
+}, initialValue);
 ```
+
+### Step 3: Initialize (LAST!)
+```javascript
+// Call this AFTER all watch() calls and DOM setup
+initState();
+```
+
+> ⚠️ **Important:** `initState()` must be called last, after all variables are set up.
 
 ---
 
-## Quick Start
+## Quick Reference
 
-### 1. State Watching & Auto-Update
+| Syntax | Purpose | Example |
+|--------|---------|---------|
+| `{{expression}}` | Evaluate JS expression | `{{userName}}` |
+| `${expression}` | Loop variable access | `${item.name}` |
+| `watch(name, cb, init)` | Create reactive variable | `watch('count', cb, 0)` |
+| `setState(options)` | Update UI components | `setState({ loops: true })` |
+| `initState()` | Initialize framework | `initState()` |
 
-```javascript
-// Watch a variable - UI auto-updates when it changes
-watch('counter', (name, value) => {
-  setState(); // Re-render components
-}, 0);
+---
 
-counter = 5; // Triggers update!
-```
+## Custom Elements
 
-### 2. Template Expressions `{{}}`
+### 1. For Loop (`<for-loop>`)
 
-```html
-<p>Hello, {{ userName }}!</p>
-<p>Total: {{ items.length * price }}</p>
-```
-
-### 3. For Loop
+Iterate over an array and render content for each item.
 
 ```html
 <for-loop array="fruits" valueVar="fruit" indexVar="i" loopid="fruitList">
@@ -59,28 +66,22 @@ counter = 5; // Triggers update!
 </for-loop>
 ```
 
-**Note:** Use `${expression}` syntax inside the template. The variables are accessed via the names you specify in `valueVar` and `indexVar`.
-
-### 4. Conditional Rendering
-
-```html
-<condition-block ifid="loginCheck">
-  <template ifid="loginCheck">
-    <if-condition value="isLoggedIn" eq="true" elseid="notLoggedIn">
-      <p>Welcome back!</p>
-    </if-condition>
-    <else-condition elseid="notLoggedIn">
-      <p>Please log in</p>
-    </else-condition>
-  </template>
-</condition-block>
-```
+**Attributes:**
+| Attribute | Required | Description |
+|-----------|----------|-------------|
+| `array` | Yes | Array variable name |
+| `loopid` | Yes | Unique ID (must match template) |
+| `valueVar` | No | Variable name for item (default: `value`) |
+| `indexVar` | No | Variable name for index (default: `index`) |
+| `start` | No | Start index (default: 0) |
+| `end` | No | End index (default: array.length) |
+| `step` | No | Step increment (default: 1) |
 
 ---
 
-## Table Rows (data-loop)
+### 2. Data Loop (`data-loop` attribute)
 
-Custom elements can't be placed inside `<tbody>` due to HTML parser rules. Use `data-loop` instead:
+Use for table rows - custom elements can't be placed inside `<tbody>`.
 
 ```html
 <table>
@@ -101,41 +102,65 @@ Custom elements can't be placed inside `<tbody>` due to HTML parser rules. Use `
 ```
 
 **Attributes:**
-- `data-loop` - Name of the array variable
-- `data-template` - CSS selector for the template
-- `data-value` - Variable name for current item
-- `data-index` - Variable name for current index
-
-Update with: `setState({ dataloops: true })`
+| Attribute | Required | Description |
+|-----------|----------|-------------|
+| `data-loop` | Yes | Array variable name |
+| `data-template` | Yes | CSS selector for template |
+| `data-value` | No | Variable name for item |
+| `data-index` | No | Variable name for index |
 
 ---
 
-## Nested Conditions
+### 3. Condition Block (`<condition-block>`)
+
+Container for if-else conditional rendering.
+
+```html
+<condition-block ifid="loginCheck">
+  <template ifid="loginCheck">
+    <if-condition value="isLoggedIn" eq="true" elseid="notLoggedIn">
+      <p>Welcome back!</p>
+    </if-condition>
+    <else-condition elseid="notLoggedIn">
+      <p>Please log in</p>
+    </else-condition>
+  </template>
+</condition-block>
+```
+
+**Comparison Operators:**
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `eq` | Equals (===) | `eq="true"` |
+| `neq` | Not equals (!==) | `neq="'error'"` |
+| `gt` | Greater than | `gt="10"` |
+| `lt` | Less than | `lt="0"` |
+| `gte` | Greater or equal | `gte="18"` |
+| `lte` | Less or equal | `lte="100"` |
+| (none) | Truthy check | `value="hasItems"` |
+
+---
+
+### 4. Nested Conditions
 
 Fully supports if-else chains inside else blocks:
 
 ```html
-<condition-block ifid="contactCheck">
-  <template ifid="contactCheck">
-    <!-- Check for both -->
-    <if-condition value="hasEmail && hasPhone" eq="true" elseid="emailOnly">
-      <p>We have both your email and phone</p>
+<condition-block ifid="check">
+  <template ifid="check">
+    <if-condition value="a && b" eq="true" elseid="onlyA">
+      <p>Both A and B</p>
     </if-condition>
-    
-    <else-condition elseid="emailOnly">
-      <!-- Check for email only -->
-      <if-condition value="hasEmail" eq="true" elseid="phoneOnly">
-        <p>We have your email</p>
+    <else-condition elseid="onlyA">
+      <if-condition value="a" eq="true" elseid="onlyB">
+        <p>Only A</p>
       </if-condition>
-      
-      <else-condition elseid="phoneOnly">
-        <!-- Check for phone only -->
-        <if-condition value="hasPhone" eq="true" elseid="neither">
-          <p>We have your phone</p>
+      <else-condition elseid="onlyB">
+        <if-condition value="b" eq="true" elseid="neither">
+          <p>Only B</p>
         </if-condition>
-        
         <else-condition elseid="neither">
-          <p>No contact info</p>
+          <p>Neither</p>
         </else-condition>
       </else-condition>
     </else-condition>
@@ -143,91 +168,181 @@ Fully supports if-else chains inside else blocks:
 </condition-block>
 ```
 
-**Comparison Operators:**
-- `eq` - Equal (===)
-- `neq` - Not equal (!==)
-- `gt` - Greater than
-- `lt` - Less than
-- `gte` - Greater than or equal
-- `lte` - Less than or equal
-- (none) - Truthy check
-
 ---
 
-## Include Templates
+### 5. State Element (`<state-element>`)
+
+Simple reactive display for state values.
 
 ```html
-<include-template file="components/header.html"></include-template>
+<state-element stateId="counter">
+  <template stateId="counter">
+    <span>Count: {{count}}</span>
+  </template>
+</state-element>
 ```
 
 ---
 
-## API Reference
+### 6. Include Template (`<include-template>`)
 
-### loader
+Import external HTML files as reusable components.
 
-```javascript
-loader.show();              // Show spinner
-loader.show('<div>...</div>');  // Custom HTML
-loader.hide();              // Hide spinner
+```html
+<!-- CSS is scoped by default (Shadow DOM) -->
+<include-template file="components/header.html"></include-template>
+
+<!-- Use global styles (no isolation) -->
+<include-template file="components/footer.html" scoped="false"></include-template>
 ```
 
-### watch(name, callback, defaultValue)
+**Attributes:**
+| Attribute | Default | Description |
+|-----------|---------|-------------|
+| `file` | Required | Path to HTML file |
+| `scoped` | `true` | `true`: CSS isolated, `false`: global |
+
+---
+
+## JavaScript API
+
+### `watch(name, callback, defaultValue)`
+
+Creates a reactive global variable.
 
 ```javascript
-watch('myVar', (propName, value) => {
-  console.log('Changed:', value);
-  setState();
-}, initialValue);
+watch('inventory', (name, value) => {
+  setState({ dataloops: true, conditions: true });
+}, []);
+
+// Now you can use: inventory = [...inventory, newItem];
 ```
 
-### setState(options)
+---
+
+### `setState(options)`
+
+Updates UI by re-rendering components.
 
 ```javascript
-setState();                          // Update everything
-setState({ loopid: 'myloop' });      // Specific loop
-setState({ ifid: 'myCondition' });   // Specific condition
-setState({ dataloops: true });       // Only data-loop elements
-setState({ showloader: false });     // No loader
+// Update everything
+setState();
+
+// Update specific component by ID
+setState({ loopid: 'myLoop' });
+setState({ ifid: 'myCondition' });
+setState({ stateId: 'myState' });
+
+// Control what updates
+setState({
+  showloader: false,    // Don't show loading spinner
+  loops: true,          // Update for-loop elements
+  dataloops: true,      // Update data-loop elements
+  conditions: true,     // Update condition-block elements
+  states: true,         // Update state-element elements
+  templates: false,     // Update include-template elements
+  innerhtml: true,      // Update data-innerhtml elements
+  datajs: true          // Execute data-js attributes
+});
 ```
 
-### parseTemplate(string)
+---
+
+### `safeEval(expression, context)`
+
+Safely evaluate a JavaScript expression.
 
 ```javascript
-const html = parseTemplate('<p>Hello {{ name }}</p>');
+const result = safeEval('a + b', { a: 1, b: 2 }); // 3
 ```
 
-### createRangeArray(start, end, step)
+---
+
+### `parseTemplate(string)`
+
+Parse `{{}}` expressions in a string.
 
 ```javascript
-createRangeArray(1, 5);      // [1, 2, 3, 4, 5]
-createRangeArray(0, 10, 2);  // [0, 2, 4, 6, 8, 10]
+const html = parseTemplate('<p>Hello {{name}}</p>');
 ```
 
-### parseURL(url?, global?)
+---
+
+### `createRangeArray(start, end, step)`
+
+Create an array of numbers.
 
 ```javascript
-parseURL(); // Parses window.location.href
+createRangeArray(1, 5);       // [1, 2, 3, 4, 5]
+createRangeArray(0, 10, 2);   // [0, 2, 4, 6, 8, 10]
+```
+
+---
+
+### `renderDataLoops()`
+
+Manually render all `data-loop` elements.
+
+```javascript
+renderDataLoops();
+```
+
+---
+
+### `parseURL(url?, global?)`
+
+Parse URL and extract components.
+
+```javascript
+parseURL(); // Parses current URL
 console.log(UrlDetails.params.id); // Access query params
 ```
 
 ---
 
-## TypeScript Support
+### `loader`
 
-Reference the type definitions in your JS file:
+Loading spinner utility.
 
 ```javascript
-/// <reference path="path/to/statejs.d.ts" />
+loader.show();                    // Show default spinner
+loader.show('<div>Loading...</div>'); // Custom HTML
+loader.hide();                    // Hide spinner
 ```
 
 ---
 
-## Browser Support
+## Data Attributes
 
-Modern browsers with:
-- Custom Elements (Web Components)
-- ES6+ (template literals, arrow functions)
+| Attribute | Description |
+|-----------|-------------|
+| `data-innerhtml="expr"` | Set element's innerHTML to expression result |
+| `data-js="code"` | Execute JavaScript on setState |
+
+```html
+<span data-innerhtml="items.length"></span>
+<div data-js="this.style.color = count > 10 ? 'red' : 'green'"></div>
+```
+
+---
+
+## TypeScript / IntelliSense
+
+### For JS files
+Download [statejs.d.ts](https://cdn.jsdelivr.net/gh/KTBsomen/httl-s@main/statejs.d.ts) and reference locally:
+
+```javascript
+/// <reference path="./statejs.d.ts" />
+```
+
+### For HTML files (VS Code)
+Copy `.vscode/httls.html-data.json` to your project and add to `.vscode/settings.json`:
+
+```json
+{
+  "html.customData": ["./.vscode/httls.html-data.json"]
+}
+```
 
 ---
 
@@ -240,6 +355,14 @@ See the `example/` folder:
 
 ---
 
-## Contributing
+## Browser Support
 
-Contributions welcome! Submit issues or pull requests.
+Modern browsers with:
+- Custom Elements (Web Components)
+- ES6+ (template literals, arrow functions)
+
+---
+
+## License
+
+MIT
