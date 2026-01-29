@@ -1,224 +1,245 @@
-# hypertext templating language
-html but templating language client side, 
+# HTTL-S - HyperText Templating Language (Simple)
 
-it has 
-1) for loop
-2) if-else
-3) Import HTML as components
-4) All javascript functions will work
-5) listen for variable change
-6) auto update ui as variable change
+A lightweight client-side templating framework for building dynamic HTML pages.
 
-more features will come if you contribute
-so please contribute and make it happen.
-# Custom HTML UI Library Documentation
+## Features
 
-## Overview
-
-This library provides a suite of customizable components and utilities to enhance your HTML-based applications. From loaders to template parsing, custom loops, and conditional rendering, this library simplifies common tasks for developers building dynamic and interactive UIs.
-
----
-
-## Table of Contents
-
-1. [Installation](#installation)  
-2. [Getting Started](#getting-started)  
-3. [Library Features](#library-features)  
-    - [Loader](#loader)  
-    - [State Watcher](#state-watcher)  
-    - [Template Parsing](#template-parsing)  
-    - [Custom Loops](#custom-loops)  
-    - [Conditional Rendering](#conditional-rendering)  
-    - [Include Templates](#include-templates)  
-4. [Utility Functions](#utility-functions)  
-5. [Directory Structure](#directory-structure)  
-6. [FAQs and Discussions](#faqs-and-discussions)  
-
----
+- ✅ **For Loops** - Iterate over arrays directly in HTML
+- ✅ **Nested If-Else** - Full support for deeply nested conditional rendering
+- ✅ **Template Includes** - Import HTML as reusable components
+- ✅ **State Watching** - Auto-update UI when variables change
+- ✅ **Table Support** - Special `data-loop` approach for proper table rendering
+- ✅ **TypeScript Support** - IntelliSense via included `.d.ts` file
 
 ## Installation
 
-To use this library, simply include the script in your HTML file `after the body tag this should be loaded at last after defining all custom components`:
+Include the script in your HTML file (after body content):
 
 ```html
-    <script src="https://cdn.jsdelivr.net/gh/KTBsomen/httl-s@main/statejs.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/KTBsomen/httl-s@main/statejs.js"></script>
 ```
 
-Ensure your project has the necessary setup for JavaScript.
-
----
-
-## Getting Started
-
-Here is an example of how to show a loader using this library:
+Then initialize:
 
 ```html
 <script>
-    loader.show(); // Displays the loader
-    setTimeout(() => loader.hide(), 3000); // Hides it after 3 seconds
+  initState();
 </script>
 ```
 
-This library provides reusable components such as loaders, custom loops, and more, helping you build dynamic UI elements effortlessly.
-
 ---
 
-## Library Features
+## Quick Start
 
-### Loader
-
-A customizable loader that can display a spinning animation and blur the background.
-
-#### Example:
+### 1. State Watching & Auto-Update
 
 ```javascript
-// Show loader with default animation
-loader.show();
+// Watch a variable - UI auto-updates when it changes
+watch('counter', (name, value) => {
+  setState(); // Re-render components
+}, 0);
 
-// Hide loader
-loader.hide();
-
-// Show loader with custom HTML
-loader.show('<div class="my-custom-loader">Loading...</div>');
+counter = 5; // Triggers update!
 ```
 
----
-
-### State Watcher
-
-Monitor and react to changes in global variables dynamically.
-
-#### Example:
-
-```javascript
-watch('myState', (propName, value) => {
-    console.log(`${propName} changed to:`, value);
-});
-
-myState = 'newValue'; // Console logs: "myState changed to: newValue"
-```
-
----
-
-### Template Parsing
-
-Parse dynamic JavaScript expressions embedded in HTML using `{{}}`.
-
-#### Example:
-
-```javascript
-const template = '<p>Hello, {{ user.name }}</p>';
-const parsedTemplate = parseTemplate(template); // Replaces {{ user.name }} with its evaluated value
-document.body.innerHTML = parsedTemplate;
-```
-
----
-
-### Custom Loops
-
-Render dynamic arrays or range-based loops directly in HTML.
-
-#### Example:
+### 2. Template Expressions `{{}}`
 
 ```html
-<for-loop array="[1, 2, 3]" valueVar="item" indexVar="index" loopid="loop1">
-    <template loopid="loop1">
-        <p>Index: ${index}, Value: ${item}</p>
-    </template>
+<p>Hello, {{ userName }}!</p>
+<p>Total: {{ items.length * price }}</p>
+```
+
+### 3. For Loop
+
+```html
+<for-loop array="fruits" valueVar="fruit" indexVar="i" loopid="fruitList">
+  <template loopid="fruitList">
+    <p>${i + 1}. ${fruit}</p>
+  </template>
 </for-loop>
 ```
 
-#### Result:
+**Note:** Use `${expression}` syntax inside the template. The variables are accessed via the names you specify in `valueVar` and `indexVar`.
+
+### 4. Conditional Rendering
 
 ```html
-<p>Index: 0, Value: 1</p>
-<p>Index: 1, Value: 2</p>
-<p>Index: 2, Value: 3</p>
-```
-
----
-
-### Conditional Rendering
-
-Render elements based on conditions directly in HTML.
-
-#### Example:
-
-```html
-<condition-block ifid="condition1">
-    <if-condition value="5" eq="5" elseid="conditionElse">
-        <p>Condition is true!</p>
+<condition-block ifid="loginCheck">
+  <template ifid="loginCheck">
+    <if-condition value="isLoggedIn" eq="true" elseid="notLoggedIn">
+      <p>Welcome back!</p>
     </if-condition>
-    <else-condition elseid="conditionElse">
-        <p>Condition is false!</p>
+    <else-condition elseid="notLoggedIn">
+      <p>Please log in</p>
     </else-condition>
+  </template>
 </condition-block>
 ```
 
 ---
 
-### Include Templates
+## Table Rows (data-loop)
 
-Include and render external HTML files dynamically.
+Custom elements can't be placed inside `<tbody>` due to HTML parser rules. Use `data-loop` instead:
 
-#### Example:
+```html
+<table>
+  <thead>
+    <tr><th>Name</th><th>Price</th></tr>
+  </thead>
+  <tbody data-loop="products" data-template="#rowTemplate" data-value="item" data-index="i">
+  </tbody>
+</table>
+
+<!-- Template MUST be outside the table -->
+<template id="rowTemplate">
+  <tr>
+    <td>${item.name}</td>
+    <td>$${item.price}</td>
+  </tr>
+</template>
+```
+
+**Attributes:**
+- `data-loop` - Name of the array variable
+- `data-template` - CSS selector for the template
+- `data-value` - Variable name for current item
+- `data-index` - Variable name for current index
+
+Update with: `setState({ dataloops: true })`
+
+---
+
+## Nested Conditions
+
+Fully supports if-else chains inside else blocks:
+
+```html
+<condition-block ifid="contactCheck">
+  <template ifid="contactCheck">
+    <!-- Check for both -->
+    <if-condition value="hasEmail && hasPhone" eq="true" elseid="emailOnly">
+      <p>We have both your email and phone</p>
+    </if-condition>
+    
+    <else-condition elseid="emailOnly">
+      <!-- Check for email only -->
+      <if-condition value="hasEmail" eq="true" elseid="phoneOnly">
+        <p>We have your email</p>
+      </if-condition>
+      
+      <else-condition elseid="phoneOnly">
+        <!-- Check for phone only -->
+        <if-condition value="hasPhone" eq="true" elseid="neither">
+          <p>We have your phone</p>
+        </if-condition>
+        
+        <else-condition elseid="neither">
+          <p>No contact info</p>
+        </else-condition>
+      </else-condition>
+    </else-condition>
+  </template>
+</condition-block>
+```
+
+**Comparison Operators:**
+- `eq` - Equal (===)
+- `neq` - Not equal (!==)
+- `gt` - Greater than
+- `lt` - Less than
+- `gte` - Greater than or equal
+- `lte` - Less than or equal
+- (none) - Truthy check
+
+---
+
+## Include Templates
 
 ```html
 <include-template file="components/header.html"></include-template>
 ```
 
-This will load `header.html` and replace the tag's content with the parsed HTML.
-
 ---
 
-## Utility Functions
+## API Reference
 
-1. **Convert Relative to Absolute URLs**  
-   ```javascript
-   const absoluteHtml = convertRelativeToAbsolute('<img src="./image.jpg">', 'https://example.com/');
-   ```
+### loader
 
-2. **Create Range Arrays**  
-   ```javascript
-   const rangeArray = createRangeArray(1, 10, 2); // [1, 3, 5, 7, 9]
-   ```
-
-3. **Set State**  
-   Update UI components dynamically:  
-   ```javascript
-   setState({ loopid: 'loop1' });
-   ```
-
----
-
-## Directory Structure
-
-Here’s how you can organize files when using this library:
-
-```
-project/
-├── components/
-│   ├── header.html
-│   └── footer.html
-├── scripts/
-│   ├── library.js
-│   └── main.js
-└── index.html
+```javascript
+loader.show();              // Show spinner
+loader.show('<div>...</div>');  // Custom HTML
+loader.hide();              // Hide spinner
 ```
 
+### watch(name, callback, defaultValue)
+
+```javascript
+watch('myVar', (propName, value) => {
+  console.log('Changed:', value);
+  setState();
+}, initialValue);
+```
+
+### setState(options)
+
+```javascript
+setState();                          // Update everything
+setState({ loopid: 'myloop' });      // Specific loop
+setState({ ifid: 'myCondition' });   // Specific condition
+setState({ dataloops: true });       // Only data-loop elements
+setState({ showloader: false });     // No loader
+```
+
+### parseTemplate(string)
+
+```javascript
+const html = parseTemplate('<p>Hello {{ name }}</p>');
+```
+
+### createRangeArray(start, end, step)
+
+```javascript
+createRangeArray(1, 5);      // [1, 2, 3, 4, 5]
+createRangeArray(0, 10, 2);  // [0, 2, 4, 6, 8, 10]
+```
+
+### parseURL(url?, global?)
+
+```javascript
+parseURL(); // Parses window.location.href
+console.log(UrlDetails.params.id); // Access query params
+```
+
 ---
 
-## FAQs and Discussions
+## TypeScript Support
 
-### Q: How do I customize the loader animation?  
-A: Use the `loader.show()` method with a custom HTML string as a parameter.
+Reference the type definitions in your JS file:
 
-### Q: Can I use this library with React or Vue?  
-A: While primarily designed for vanilla JavaScript, parts of the library (like template parsing) can integrate into React or Vue.
-
-### Q: What browsers are supported?  
-A: The library supports modern browsers. Ensure `backdrop-filter` is supported for blur effects.
+```javascript
+/// <reference path="path/to/statejs.d.ts" />
+```
 
 ---
 
-For more details or contributions, feel free to submit issues or pull requests to the project repository. Happy coding!
+## Browser Support
+
+Modern browsers with:
+- Custom Elements (Web Components)
+- ES6+ (template literals, arrow functions)
+
+---
+
+## Examples
+
+See the `example/` folder:
+- `index.html` - Inventory management app
+- `test-nested-conditions.html` - Nested if-else demos
+- `test-table-rendering.html` - Table with data-loop
+
+---
+
+## Contributing
+
+Contributions welcome! Submit issues or pull requests.

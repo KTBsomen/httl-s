@@ -1,116 +1,300 @@
 {
-	// Place your global snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
-	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
-	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
-	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
-	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
-	// Placeholders with the same ids are connected.
-	// Example:
-	// "Print to console": {
-	// 	"scope": "javascript,typescript",
-	// 	"prefix": "log",
-	// 	"body": [
-	// 		"console.log('$1');",
-	// 		"$2"
-	// 	],
-	// 	"description": "Log output to console"
-	// }
-
-	
-	
-	
+	// HTTL-S Framework Code Snippets for VS Code
+	// All custom elements with documentation and tab stops
 	"Loop Template": {
-		"prefix":["for", "forloop"],
-		"body": [
-		  "<!-- ",
-		  " Creates a for-loop template with HTML comments, loopid attribute, and array attribute ",
-		  " [ loopid ]: Unique identifier for the loop ",
-		  " [ valueVar ]: Variable name to hold the value of each iteration ",
-		  " [ indexVar ]: Variable name to hold the index of each iteration ",
-		  " [ start ]: Start value for the loop ",
-		  " [ end ]: End value for the loop ",
-		  " [ append ]: Whether to append loop content (true/false);Default behavior is to rewrite the whole section every time ",
-		  " [ array ]: Name of the array to iterate over ",
-		  "template tag is required, Do what ever inside of it",
-		  "here ${} is for accessing the loop elements and {{ }} is used for accessing any JavaScript variable defined anywhere. ",
-		  "Example: <li> this is the index ${[ indexVar ]} and this is the value ${[ valueVar ]}</li>",
-		  "-->",
-		  "",		
-		  "<for-loop valueVar=\"$2\" indexVar=\"$3\" array=\"${4:arrayName}\" start=\"${5:startFrom}\" end=\"${6:endAt}\" loopid=\"${7:UniqueLoopId}\">",
-		  "  <template loopid=\"$7\">",
-		  "",
-		  "",
-		  "   <!-- Your code here -->",
-		  "    $0",
-		  "",
-		  "",
-		  "  </template>",
-		  "</for-loop>"
+		"prefix": [
+			"for",
+			"forloop",
+			"for-loop"
 		],
-		"description": "Creates a for loop template with HTML comments, loopid attribute, and array attribute"
-	  }
-	,
+		"body": [
+			"<!--",
+			" for-loop: Iterates over an array and renders content for each item",
+			" Attributes:",
+			"   [loopid]   - Unique identifier (must match template loopid)",
+			"   [array]    - Array variable name to iterate",
+			"   [valueVar] - Variable name for current item (use in ${valueVar})",
+			"   [indexVar] - Variable name for current index (use in ${indexVar})",
+			"   [start]    - Start index (default: 0)",
+			"   [end]      - End index (default: array.length)",
+			"   [step]     - Step increment (default: 1)",
+			" Inside template: ${expr} for loop vars, {{expr}} for globals",
+			"-->",
+			"<for-loop array=\"${1:arrayName}\" valueVar=\"${2:item}\" indexVar=\"${3:i}\" loopid=\"${4:uniqueLoopId}\">",
+			"  <template loopid=\"$4\">",
+			"    $0",
+			"  </template>",
+			"</for-loop>"
+		],
+		"description": "HTTL-S: Creates a for-loop to iterate over an array"
+	},
+	"Data Loop (for tables)": {
+		"prefix": [
+			"dataloop",
+			"data-loop",
+			"tableloop"
+		],
+		"body": [
+			"<!--",
+			" data-loop: Loop for table rows (works inside tbody)",
+			" Attributes:",
+			"   [data-loop]     - Array variable name",
+			"   [data-template] - CSS selector for template (e.g., #myTemplate)",
+			"   [data-value]    - Variable name for current item",
+			"   [data-index]    - Variable name for current index",
+			" Template must be outside the table element",
+			"-->",
+			"<tbody data-loop=\"${1:arrayName}\" data-template=\"#${2:templateId}\" data-value=\"${3:item}\" data-index=\"${4:i}\">",
+			"</tbody>",
+			"",
+			"<template id=\"$2\">",
+			"  <tr>",
+			"    <td>\\${$3.${5:property}}</td>",
+			"    $0",
+			"  </tr>",
+			"</template>"
+		],
+		"description": "HTTL-S: Creates a data-loop for table rows (avoids HTML parser issues)"
+	},
 	"Condition Block": {
-		"prefix":["cond", "condition-block"],
-		"body": [
-		  "<condition-block ifid=\"${1:unieqe_ifID}\">",
-		  "  <template ifid=\"$1\">",
-		  "<!-- Your code here -->",
-		  "    $0",
-		  "  </template>",
-		  "</condition-block>"
+		"prefix": [
+			"cond",
+			"condition",
+			"condition-block"
 		],
-		"description": "Creates a condition block with template"
-	  },
-	  "If Condition neq": {
-		"prefix": ["if","ifn","ifnot", "if-condition"],
 		"body": [
-		  "<if-condition value=\"$1\" neq=\"$2\" elseid=\"$3\">",
-		  "  $0",
-		  "</if-condition>",
-		  "<!--else condition must have the same [ elseid ] as the if condition-->",
-		  "<else-condition elseid=\"$3\">",
-		  "  $0",
-		  "</else-condition>"
+			"<!--",
+			" condition-block: Container for if-else conditional rendering",
+			" Attributes:",
+			"   [ifid] - Unique identifier (must match template ifid)",
+			" Contains if-condition and optional else-condition elements",
+			"-->",
+			"<condition-block ifid=\"${1:uniqueIfId}\">",
+			"  <template ifid=\"$1\">",
+			"    $0",
+			"  </template>",
+			"</condition-block>"
 		],
-		"description": "Creates an if condition for not equal check"
-	  },
-	  "If Condition eq": {
-		"prefix": ["if","ifeq","ife", ],
+		"description": "HTTL-S: Creates a condition block for if-else logic"
+	},
+	"If Condition (equals)": {
+		"prefix": [
+			"ifeq",
+			"if-eq",
+			"if-condition"
+		],
 		"body": [
-		  "<if-condition value=\"$1\" eq=\"$2\" elseid=\"$3\">",
-		  "  $0",
-		  "</if-condition>",
-		  "<!--else condition must have the same [ elseid ] as the if condition-->",
-		  "<else-condition elseid=\"$3\">",
-		  " ",
-		  "</else-condition>"
+			"<!--",
+			" if-condition: Conditional rendering",
+			" Operators: eq (===), neq (!==), gt (>), lt (<), gte (>=), lte (<=)",
+			" If no operator, checks truthiness of value",
+			"-->",
+			"<if-condition value=\"${1:expression}\" eq=\"${2:compareValue}\" elseid=\"${3:elseId}\">",
+			"  $0",
+			"</if-condition>",
+			"<else-condition elseid=\"$3\">",
+			"  ",
+			"</else-condition>"
 		],
-		"description": "Creates an if condition for equal check"
-	  }
-	  ,"Else Condition": {
-		"prefix": [ "else","else-condition" ],
+		"description": "HTTL-S: If condition with equals check and else block"
+	},
+	"If Condition (not equals)": {
+		"prefix": [
+			"ifneq",
+			"if-neq",
+			"ifnot"
+		],
 		"body": [
-			"<if-condition value=\"$1\" eq=\"$2\" elseid=\"$3\">",
-		  "",
-		  "</if-condition>",
-		  "<!--else condition must have the same [ elseid ] as the if condition-->",
-		  "<else-condition elseid=\"$3\">",
-		  "$0",
-		  "</else-condition>"
+			"<if-condition value=\"${1:expression}\" neq=\"${2:compareValue}\" elseid=\"${3:elseId}\">",
+			"  $0",
+			"</if-condition>",
+			"<else-condition elseid=\"$3\">",
+			"  ",
+			"</else-condition>"
 		],
-		"description": "Creates an else condition with a corosponding if with same elseid"
-	  },
-	  "Include Template": {
-		"prefix": ["inc","include","include-template"],
+		"description": "HTTL-S: If condition with not-equals check"
+	},
+	"If Condition (greater than)": {
+		"prefix": [
+			"ifgt",
+			"if-gt"
+		],
 		"body": [
-		  "<include-template file=\"$1\"></include-template>"
+			"<if-condition value=\"${1:expression}\" gt=\"${2:compareValue}\" elseid=\"${3:elseId}\">",
+			"  $0",
+			"</if-condition>",
+			"<else-condition elseid=\"$3\">",
+			"  ",
+			"</else-condition>"
 		],
-		"description": "Includes a template using relative path"
-	  }
-	  
-	  
-	
-	  
-	  
+		"description": "HTTL-S: If condition with greater-than check"
+	},
+	"If Condition (less than)": {
+		"prefix": [
+			"iflt",
+			"if-lt"
+		],
+		"body": [
+			"<if-condition value=\"${1:expression}\" lt=\"${2:compareValue}\" elseid=\"${3:elseId}\">",
+			"  $0",
+			"</if-condition>",
+			"<else-condition elseid=\"$3\">",
+			"  ",
+			"</else-condition>"
+		],
+		"description": "HTTL-S: If condition with less-than check"
+	},
+	"If Condition (truthy)": {
+		"prefix": [
+			"iftrue",
+			"if-truthy",
+			"ifbool"
+		],
+		"body": [
+			"<if-condition value=\"${1:expression}\" elseid=\"${2:elseId}\">",
+			"  $0",
+			"</if-condition>",
+			"<else-condition elseid=\"$2\">",
+			"  ",
+			"</else-condition>"
+		],
+		"description": "HTTL-S: If condition checking truthiness (no comparison operator)"
+	},
+	"Else Condition": {
+		"prefix": [
+			"else",
+			"else-condition"
+		],
+		"body": [
+			"<else-condition elseid=\"${1:elseId}\">",
+			"  $0",
+			"</else-condition>"
+		],
+		"description": "HTTL-S: Else condition (elseid must match corresponding if-condition)"
+	},
+	"State Element": {
+		"prefix": [
+			"state",
+			"state-element"
+		],
+		"body": [
+			"<!--",
+			" state-element: Simple reactive element for displaying state",
+			" Attributes:",
+			"   [stateId] - Unique identifier (must match template stateId)",
+			" Use {{expression}} inside template to display values",
+			"-->",
+			"<state-element stateId=\"${1:uniqueStateId}\">",
+			"  <template stateId=\"$1\">",
+			"    {{${2:variableName}}}$0",
+			"  </template>",
+			"</state-element>"
+		],
+		"description": "HTTL-S: State element for reactive value display"
+	},
+	"Include Template (scoped)": {
+		"prefix": [
+			"inc",
+			"include",
+			"include-template"
+		],
+		"body": [
+			"<!--",
+			" include-template: Includes external HTML file",
+			" Attributes:",
+			"   [file]   - Relative path to HTML file",
+			"   [scoped] - CSS isolation (default: true uses Shadow DOM)",
+			"              Set to 'false' for global styles",
+			"-->",
+			"<include-template file=\"${1:path/to/file.html}\"></include-template>"
+		],
+		"description": "HTTL-S: Include template with scoped CSS (Shadow DOM)"
+	},
+	"Include Template (global styles)": {
+		"prefix": [
+			"incglobal",
+			"include-global"
+		],
+		"body": [
+			"<include-template file=\"${1:path/to/file.html}\" scoped=\"false\"></include-template>"
+		],
+		"description": "HTTL-S: Include template with global styles (no Shadow DOM)"
+	},
+	"Watch Variable": {
+		"prefix": [
+			"watch",
+			"watchvar"
+		],
+		"body": [
+			"// Watch a variable for changes and auto-update UI",
+			"watch('${1:variableName}', (name, value) => {",
+			"  setState({ ${2:conditions: true, dataloops: true} });",
+			"}, ${3:initialValue});"
+		],
+		"description": "HTTL-S: Create a watched variable that triggers UI updates"
+	},
+	"Initialize State": {
+		"prefix": [
+			"initstate",
+			"initState"
+		],
+		"body": [
+			"initState();"
+		],
+		"description": "HTTL-S: Initialize state for reactive elements"
+	},
+	"Set State": {
+		"prefix": [
+			"setstate",
+			"setState"
+		],
+		"body": [
+			"setState({",
+			"  ${1|loopid,ifid,stateId|}: '${2:id}',",
+			"  showloader: ${3|false,true|},",
+			"  $0",
+			"});"
+		],
+		"description": "HTTL-S: Update UI state / re-render components"
+	},
+	"Data InnerHTML": {
+		"prefix": [
+			"dinnerhtml",
+			"data-innerhtml"
+		],
+		"body": [
+			"<${1:span} data-innerhtml=\"${2:expression}\"></$1>"
+		],
+		"description": "HTTL-S: Element that displays evaluated expression as innerHTML"
+	},
+	"Data JS": {
+		"prefix": [
+			"djs",
+			"data-js"
+		],
+		"body": [
+			"<${1:div} data-js=\"${2:this.style.color = 'red'}\"></$1>"
+		],
+		"description": "HTTL-S: Element with inline JS executed on setState"
+	},
+	"Template Expression": {
+		"prefix": [
+			"expr",
+			"{{"
+		],
+		"body": [
+			"{{${1:expression}}}"
+		],
+		"description": "HTTL-S: Template expression {{}} for evaluating JavaScript"
+	},
+	"Loop Expression": {
+		"prefix": [
+			"lexpr",
+			"${"
+		],
+		"body": [
+			"\\${${1:loopVar.property}}"
+		],
+		"description": "HTTL-S: Loop expression ${} for accessing loop variables"
+	}
 }

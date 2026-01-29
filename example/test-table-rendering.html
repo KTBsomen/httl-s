@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTL-S Test - Table Rendering</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin: 2px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+        }
+
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+
+        .stats {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>HTTL-S Table Rendering Test</h1>
+
+    <div class="section">
+        <h2>Controls</h2>
+        <button onclick="addProduct()">➕ Add Product</button>
+        <button onclick="clearProducts()">🗑️ Clear All</button>
+        <button onclick="resetProducts()">🔄 Reset to Sample Data</button>
+    </div>
+
+    <!-- Correct table structure using data-loop -->
+    <div class="section">
+        <h2>✅ data-loop Approach (Works in tbody)</h2>
+        <p>Uses <code>data-loop</code> attribute on <code>&lt;tbody&gt;</code> with external template:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody data-loop="products" data-template="#productRowTemplate" data-value="product" data-index="idx">
+            </tbody>
+        </table>
+
+        <!-- Template MUST be outside the table -->
+        <template id="productRowTemplate">
+            <tr>
+                <td>${idx + 1}</td>
+                <td>${product.name}</td>
+                <td>${product.category}</td>
+                <td>$${product.price.toFixed(2)}</td>
+                <td>${product.stock}</td>
+                <td>
+                    <button onclick="deleteProduct(${idx})">Delete</button>
+                </td>
+            </tr>
+        </template>
+
+        <div class="stats">
+            <strong>Total products:</strong> <span data-innerhtml="products.length">0</span> |
+            <strong>Total value:</strong> $<span
+                data-innerhtml="products.reduce((sum, p) => sum + p.price * p.stock, 0).toFixed(2)">0</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📋 How It Works</h2>
+        <p>The <code>data-loop</code> approach solves the HTML parser issue:</p>
+        <pre style="background: #f5f5f5; padding: 15px; border-radius: 4px; overflow-x: auto;">
+&lt;table&gt;
+  &lt;thead&gt;...&lt;/thead&gt;
+  &lt;tbody data-loop="products" 
+         data-template="#myTemplate" 
+         data-value="item" 
+         data-index="i"&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;!-- Template OUTSIDE the table --&gt;
+&lt;template id="myTemplate"&gt;
+  &lt;tr&gt;
+    &lt;td&gt;${item.name}&lt;/td&gt;
+    &lt;td&gt;${i}&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/template&gt;</pre>
+    </div>
+
+    <script src="../statejs.js"></script>
+    <script>
+
+        // Sample product data
+        const sampleProducts = [
+            { name: 'Laptop', category: 'Electronics', price: 999.99, stock: 15 },
+            { name: 'Desk Chair', category: 'Furniture', price: 249.00, stock: 30 },
+            { name: 'Headphones', category: 'Electronics', price: 79.99, stock: 50 },
+            { name: 'Coffee Table', category: 'Furniture', price: 199.00, stock: 12 },
+            { name: 'Keyboard', category: 'Electronics', price: 129.99, stock: 45 }
+        ];
+
+        // Watch products array
+        watch('products', () => {
+            setState({ dataloops: true, innerhtml: true, loops: false, conditions: false, showloader: false });
+        }, [...sampleProducts]);
+
+        function addProduct() {
+            const names = ['Monitor', 'Mouse', 'Webcam', 'Speakers', 'USB Hub', 'Tablet', 'Printer'];
+            const categories = ['Electronics', 'Furniture', 'Accessories'];
+            products = [...products, {
+                name: names[Math.floor(Math.random() * names.length)] + ' ' + Math.floor(Math.random() * 100),
+                category: categories[Math.floor(Math.random() * categories.length)],
+                price: Math.floor(Math.random() * 500) + 50 + Math.random(),
+                stock: Math.floor(Math.random() * 100)
+            }];
+        }
+
+        function deleteProduct(index) {
+            products = products.filter((_, i) => i !== index);
+        }
+
+        function clearProducts() {
+            products = [];
+        }
+
+        function resetProducts() {
+            products = [...sampleProducts];
+        }
+
+        // Initialize
+        initState();
+    </script>
+</body>
+
+</html>

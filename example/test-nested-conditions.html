@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTTL-S Test - Nested Conditions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .test-section {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .success {
+      color: #2e7d32;
+    }
+
+    .info {
+      background-color: #e3f2fd;
+    }
+
+    button {
+      padding: 8px 16px;
+      margin: 5px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    button:hover {
+      background: #f0f0f0;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .current-values {
+      background: #fff3e0;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    b {
+      color: #1565c0;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>HTTL-S Nested Conditions Test</h1>
+
+  <div class="test-section">
+    <h2>Controls</h2>
+    <button onclick="whatIhave = ['email', 'phone']">Have Both</button>
+    <button onclick="whatIhave = ['email']">Email Only</button>
+    <button onclick="whatIhave = ['phone']">Phone Only</button>
+    <button onclick="whatIhave = []">Have None</button>
+
+    <div class="current-values">
+      <strong>Current whatIhave:</strong> <state-element stateId="whatIhave"><template
+          stateId="whatIhave"><span>{{whatIhave}}</span></template></state-element>
+    </div>
+  </div>
+
+  <!-- Test: Complex nested if-else (from user's example) -->
+  <div class="test-section info">
+    <h2>Test: Nested If-Else-If Chain</h2>
+    <p>This tests the exact structure you provided:</p>
+
+    <condition-block ifid="contact_info">
+      <template ifid="contact_info">
+        <!-- BOTH -->
+        <if-condition value="whatIhave.includes('email') && whatIhave.includes('phone')" eq="true" elseid="email_only">
+          <b class="success">✅ I have your email AND phone number</b>
+        </if-condition>
+
+        <!-- EMAIL ONLY -->
+        <else-condition elseid="email_only">
+          <if-condition value="whatIhave.includes('email')" eq="true" elseid="phone_only">
+            <b class="success">✅ I have your email only</b>
+          </if-condition>
+
+          <!-- PHONE ONLY -->
+          <else-condition elseid="phone_only">
+            <if-condition value="whatIhave.includes('phone')" eq="true" elseid="none">
+              <b class="success">✅ I have your phone number only</b>
+            </if-condition>
+
+            <!-- NONE -->
+            <else-condition elseid="none">
+              <b>❌ I don't have your contact info yet</b>
+            </else-condition>
+          </else-condition>
+        </else-condition>
+      </template>
+    </condition-block>
+  </div>
+
+  <!-- Test 2: Simple if-else -->
+  <div class="test-section">
+    <h2>Test: Simple If-Else</h2>
+    <condition-block ifid="simple_test">
+      <template ifid="simple_test">
+        <if-condition value="whatIhave.length" gt="0" elseid="simple_else">
+          <p class="success">✅ You have at least one contact method</p>
+        </if-condition>
+        <else-condition elseid="simple_else">
+          <p>No contact methods available</p>
+        </else-condition>
+      </template>
+    </condition-block>
+  </div>
+
+  <!-- Test 3: Boolean condition -->
+  <div class="test-section">
+    <h2>Test: Boolean Truthy Check</h2>
+    <condition-block ifid="bool_test">
+      <template ifid="bool_test">
+        <if-condition value="whatIhave.length" elseid="bool_else">
+          <p class="success">✅ whatIhave.length is truthy ({{whatIhave.length}})</p>
+        </if-condition>
+        <else-condition elseid="bool_else">
+          <p>whatIhave.length is falsy (0 or undefined)</p>
+        </else-condition>
+      </template>
+    </condition-block>
+  </div>
+
+  <!-- Test 4: Triple nested levels -->
+  <div class="test-section">
+    <h2>Test: Three Level Nesting</h2>
+    <condition-block ifid="triple_test">
+      <template ifid="triple_test">
+        <if-condition value="whatIhave.length >= 2" eq="true" elseid="t1">
+          <div style="padding: 10px; background: #e8f5e9; border-radius: 4px;">
+            <p class="success">✅ Level 1: Have 2+ items</p>
+            <if-condition value="whatIhave.includes('email')" eq="true" elseid="t2">
+              <div style="padding: 10px; background: #c8e6c9; border-radius: 4px; margin-top: 10px;">
+                <p class="success">✅ Level 2: Includes email</p>
+                <if-condition value="whatIhave.includes('phone')" eq="true" elseid="t3">
+                  <p class="success" style="margin-top: 10px;"><strong>✅ Level 3: Also includes phone - ALL CHECKS
+                      PASSED!</strong></p>
+                </if-condition>
+                <else-condition elseid="t3">
+                  <p style="margin-top: 10px;">Level 3: No phone</p>
+                </else-condition>
+              </div>
+            </if-condition>
+            <else-condition elseid="t2">
+              <p style="margin-top: 10px;">Level 2: No email</p>
+            </else-condition>
+          </div>
+        </if-condition>
+        <else-condition elseid="t1">
+          <p>Level 1: Less than 2 items</p>
+        </else-condition>
+      </template>
+    </condition-block>
+  </div>
+
+  <script src="../statejs.js"></script>
+  <script>
+    // Initialize watched variable
+    watch('whatIhave', () => {
+      // Update all condition blocks
+      setState({ conditions: true, innerhtml: true, loops: false, showloader: false });
+    }, ['email', 'phone']); // Start with both
+
+    // Initialize custom elements
+    initState();
+
+  </script>
+
+</body>
+
+</html>

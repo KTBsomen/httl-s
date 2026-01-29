@@ -9,10 +9,13 @@
 </head>
 
 <body>
+  <h1 id="change">kdjcndjkskds</h1>
+
   <!-- Include Header -->
   <include-template file="components/header.html"></include-template>
 
   <main>
+    <!-- Conditional Form Section -->
     <condition-block ifid="checkForEdit">
       <template ifid="checkForEdit">
         <if-condition value="editmode" eq="true" elseid="editcondition">
@@ -20,10 +23,11 @@
             <h2>Edit Item</h2>
             <form id="inventory-form" onsubmit="event.preventDefault();saveEdit(event)">
               <label for="item-name">Item Name</label>
-              <input type="text" id="item-name" name="name" value="{{editData.name}}" placeholder="Enter item name" required>
+              <input type="text" id="item-name" name="name" value="{{editData.name || ''}}"
+                placeholder="Enter item name" required>
 
               <label for="item-category">Category</label>
-              <select id="item-category" name="category" value="{{editData.category}}"  required>
+              <select id="item-category" name="category" required>
                 <option value="Electronics">Electronics</option>
                 <option value="Furniture">Furniture</option>
                 <option value="Groceries">Groceries</option>
@@ -31,13 +35,14 @@
               </select>
 
               <label for="item-quantity">Quantity</label>
-              <input type="number" id="item-quantity" name="quantity"  value="{{editData.quantity}}" placeholder="Enter quantity" required min="1">
+              <input type="number" id="item-quantity" name="quantity" value="{{editData.quantity || ''}}"
+                placeholder="Enter quantity" required min="1">
 
               <button type="submit">Save Edit</button>
+              <button type="button" onclick="cancelEdit()">Cancel</button>
             </form>
           </section>
         </if-condition>
-        <!--else condition must have the same [ elseid ] as the if condition-->
         <else-condition elseid="editcondition">
           <section id="inventory-form-container">
             <h2>Add New Item</h2>
@@ -60,116 +65,137 @@
             </form>
           </section>
         </else-condition>
-
       </template>
     </condition-block>
-    <!-- Inventory Form Section -->
-
 
     <!-- Inventory List Section -->
     <section id="inventory-list-container">
       <h2>Inventory List</h2>
 
-      <for-loop valueVar="data" indexVar="o" array="inventory" start="0" end="inventory.length" loopid="UniqueLoopId">
-        <template loopid="UniqueLoopId">
-          <table id="inventory-table${o}" class="inventory-table">
-            <thead style="display: ${o==0?' table-header-group':'none'};">
-              <tr>
-                <th>Item Name</th>
-                <th>Category</th>
-                <th>Quantity</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+      <table class="inventory-table">
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <!-- Use data-loop for table rows - works inside tbody -->
+        <tbody data-loop="inventory" data-template="#inventoryRowTemplate" data-value="item" data-index="i">
+        </tbody>
+      </table>
 
+      <!-- Template defined outside table to avoid parser issues -->
+      <template id="inventoryRowTemplate">
+        <tr>
+          <td>${item.name}</td>
+          <td>${item.category}</td>
+          <td>${item.quantity}</td>
+          <td>
+            <button onclick="editInventory(${i})">Edit</button>
+            <button onclick="deleteInventory(${i})">Delete</button>
+          </td>
+        </tr>
+      </template>
 
-            <tbody>
-
-              <tr>
-
-
-                <td>${data.name}</td>
-                <td>${data.category}</td>
-                <td>${data.quantity}</td>
-                <td>
-                  <button onclick="editInventory('${o}')">Edit</button>
-                  <button onclick="deleteInventory('${o}')">Delete</button>
-                </td>
-
-
-              </tr>
-
-            </tbody>
-          </table>
-
+      <!-- Show message when inventory is empty -->
+      <condition-block ifid="emptyCheck">
+        <template ifid="emptyCheck">
+          <if-condition value="inventory.length" eq="0">
+            <p style="text-align: center; color: #888; padding: 20px;">
+              No items in inventory. Add some items above!
+            </p>
+          </if-condition>
         </template>
-      </for-loop>
+      </condition-block>
     </section>
 
   </main>
-
   <!-- Include Footer -->
-  <include-template file="components/footer.html"></include-template>
+  <include-template file="components/footer.html" scoped="false"></include-template>
 
-  <script src="https://cdn.jsdelivr.net/gh/KTBsomen/httl-s@main/statejs.js"></script>
+  <script src="../statejs.js"></script>
 
   <script>
-    watch('inventory', (newState, oldState) => {
-      setState({ loopid: 'UniqueLoopId' });
-    },
-    JSON.parse(localStorage.getItem('inventory')||'[]')
-  );
+    // Initialize watched variables
+    watch('inventory', (propName, value) => {
+      setState({ dataloops: true, showloader: false, loops: false, conditions: false });
+      setState({ ifid: 'emptyCheck', showloader: false });
+    }, JSON.parse(localStorage.getItem('inventory') || '[]'));
 
+    watch('editmode', (propName, value) => {
+      setState({ ifid: 'checkForEdit' });
+    }, false);
 
-    watch('editmode', (newState, oldState) => {
+    watch('editData', (propName, value) => {
       setState({ ifid: 'checkForEdit' });
-    }, false)
-    watch('editData', (newState, oldState) => {
-      setState({ ifid: 'checkForEdit' });
-    }, {})
-    // Function to add a new inventory item
+    }, {});
+
+    // Add new inventory item
     function addInventory(event) {
       event.preventDefault();
       const newItem = {
         name: document.getElementById('item-name').value,
         category: document.getElementById('item-category').value,
-        quantity: document.getElementById('item-quantity').value
+        quantity: parseInt(document.getElementById('item-quantity').value)
       };
-      inventory.push(newItem);
-      localStorage.setItem('inventory', JSON.stringify(inventory));
-      
-      inventory = inventory
-      document.getElementById('item-name').value = '';
-      document.getElementById('item-category').value = '';
-      document.getElementById('item-quantity').value = '';
+
+      const updated = [...inventory, newItem];
+      localStorage.setItem('inventory', JSON.stringify(updated));
+      inventory = updated;
+
+      // Clear form
+      document.getElementById('inventory-form').reset();
     }
+
+    // Edit inventory item
     function editInventory(index) {
-      const item = inventory[index];
-      item.index = index;
+      const item = { ...inventory[index], index };
       editData = item;
       editmode = true;
+
+      // Set select value after render
+      setTimeout(() => {
+        const select = document.getElementById('item-category');
+        if (select) select.value = item.category;
+      }, 100);
     }
+
+    // Delete inventory item
     function deleteInventory(index) {
-      inventory.splice(index, 1);
-      inventory = inventory
-      localStorage.setItem('inventory', JSON.stringify(inventory));
+      if (confirm('Are you sure you want to delete this item?')) {
+        const updated = inventory.filter((_, i) => i !== index);
+        localStorage.setItem('inventory', JSON.stringify(updated));
+        inventory = updated;
+      }
     }
+
+    // Save edited item
     function saveEdit(event) {
       event.preventDefault();
       const index = editData.index;
-      inventory[index] = {
+      const updated = [...inventory];
+      updated[index] = {
         name: document.getElementById('item-name').value,
         category: document.getElementById('item-category').value,
-        quantity: document.getElementById('item-quantity').value
+        quantity: parseInt(document.getElementById('item-quantity').value)
       };
-      localStorage.setItem('inventory', JSON.stringify(inventory));
-      
+
+      localStorage.setItem('inventory', JSON.stringify(updated));
+      inventory = updated;
+
       editmode = false;
       editData = {};
     }
 
-  </script>
-  <script>
+    // Cancel editing
+    function cancelEdit() {
+      editmode = false;
+      editData = {};
+    }
+
+    // Initialize
     initState();
   </script>
 </body>

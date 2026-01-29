@@ -1,0 +1,163 @@
+{
+    "version": 1.1,
+    "tags": [
+        {
+            "name": "for-loop",
+            "description": "HTTL-S: Iterates over an array and renders content for each item. Use ${valueVar} and ${indexVar} inside template to access current item/index.",
+            "attributes": [
+                {
+                    "name": "array",
+                    "description": "Array variable name to iterate over"
+                },
+                {
+                    "name": "valueVar",
+                    "description": "Variable name for current item (default: 'value'). Access with ${valueVar}"
+                },
+                {
+                    "name": "indexVar",
+                    "description": "Variable name for current index (default: 'index'). Access with ${indexVar}"
+                },
+                {
+                    "name": "loopid",
+                    "description": "Unique identifier - must match the template's loopid attribute"
+                },
+                {
+                    "name": "start",
+                    "description": "Start index (default: 0)"
+                },
+                {
+                    "name": "end",
+                    "description": "End index (default: array.length)"
+                },
+                {
+                    "name": "step",
+                    "description": "Step increment (default: 1)"
+                }
+            ],
+            "references": [
+                {
+                    "name": "HTTL-S Documentation",
+                    "url": "https://github.com/KTBsomen/httl-s"
+                }
+            ]
+        },
+        {
+            "name": "condition-block",
+            "description": "HTTL-S: Container for conditional if-else rendering. Must contain a template with matching ifid.",
+            "attributes": [
+                {
+                    "name": "ifid",
+                    "description": "Unique identifier - must match the template's ifid attribute"
+                }
+            ]
+        },
+        {
+            "name": "if-condition",
+            "description": "HTTL-S: Conditional element. Renders content if condition is true. Operators: eq (===), neq (!==), gt (>), lt (<), gte (>=), lte (<=). If no operator, checks truthiness.",
+            "attributes": [
+                {
+                    "name": "value",
+                    "description": "JavaScript expression to evaluate"
+                },
+                {
+                    "name": "eq",
+                    "description": "Equals comparison (===)"
+                },
+                {
+                    "name": "neq",
+                    "description": "Not equals comparison (!==)"
+                },
+                {
+                    "name": "gt",
+                    "description": "Greater than comparison (>)"
+                },
+                {
+                    "name": "lt",
+                    "description": "Less than comparison (<)"
+                },
+                {
+                    "name": "gte",
+                    "description": "Greater than or equal (>=)"
+                },
+                {
+                    "name": "lte",
+                    "description": "Less than or equal (<=)"
+                },
+                {
+                    "name": "elseid",
+                    "description": "ID linking to corresponding else-condition element"
+                }
+            ]
+        },
+        {
+            "name": "else-condition",
+            "description": "HTTL-S: Else block for if-condition. Renders when corresponding if-condition is false.",
+            "attributes": [
+                {
+                    "name": "elseid",
+                    "description": "Must match the elseid of the corresponding if-condition"
+                }
+            ]
+        },
+        {
+            "name": "state-element",
+            "description": "HTTL-S: Simple reactive element for displaying state values. Use {{expression}} inside template.",
+            "attributes": [
+                {
+                    "name": "stateId",
+                    "description": "Unique identifier - must match the template's stateId attribute"
+                }
+            ]
+        },
+        {
+            "name": "include-template",
+            "description": "HTTL-S: Includes external HTML file as a component. CSS is scoped by default using Shadow DOM.",
+            "attributes": [
+                {
+                    "name": "file",
+                    "description": "Relative path to the HTML file to include"
+                },
+                {
+                    "name": "scoped",
+                    "description": "CSS isolation mode. 'true' (default): Shadow DOM scoped styles. 'false': global styles.",
+                    "values": [
+                        {
+                            "name": "true",
+                            "description": "CSS scoped to component (Shadow DOM)"
+                        },
+                        {
+                            "name": "false",
+                            "description": "CSS applies globally"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "globalAttributes": [
+        {
+            "name": "data-loop",
+            "description": "HTTL-S: Array name for data-loop iteration (use with data-template, data-value, data-index)"
+        },
+        {
+            "name": "data-template",
+            "description": "HTTL-S: CSS selector for template element (e.g., #myTemplate)"
+        },
+        {
+            "name": "data-value",
+            "description": "HTTL-S: Variable name for current item in data-loop"
+        },
+        {
+            "name": "data-index",
+            "description": "HTTL-S: Variable name for current index in data-loop"
+        },
+        {
+            "name": "data-innerhtml",
+            "description": "HTTL-S: JavaScript expression to evaluate and set as innerHTML"
+        },
+        {
+            "name": "data-js",
+            "description": "HTTL-S: JavaScript code to execute on setState. Use 'this' to reference the element."
+        }
+    ]
+}

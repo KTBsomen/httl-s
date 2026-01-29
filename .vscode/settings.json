@@ -1,3 +1,6 @@
 {
-    "liveServer.settings.port": 5501
+    "liveServer.settings.port": 5501,
+    "html.customData": [
+        "./.vscode/httls.html-data.json"
+    ]
 }
