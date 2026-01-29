@@ -1,8 +1,19 @@
-/**
- * HTTL-S - HyperText Templating Language (Simple)
- * A lightweight client-side templating framework for dynamic HTML
- * @version 2.1.0
- * @license MIT
+/*!
+ * HTTL-S — HyperText Templating Language (Simple)
+ *
+ * Copyright © 2026 Somen Das
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 // ============================================================================
@@ -80,6 +91,9 @@ const watchedVars = [];
  */
 function watch(propName, cb, defaultValue = undefined) {
     let _value = defaultValue;
+    if (propName in window) {
+        console.warn(`HTTL-S: "${propName}" already exists on window`);
+    }
 
     Object.defineProperty(window, propName, {
         get: function () { return _value; },
@@ -103,7 +117,7 @@ function watch(propName, cb, defaultValue = undefined) {
  * @param {Object} context - Optional context variables
  * @returns {*} Result of evaluation
  */
-function safeEval(expression, context = {}) {
+function unsafeEval(expression, context = {}) {
     try {
         // Create context variables in local scope
         const keys = Object.keys(context);
@@ -118,7 +132,7 @@ function safeEval(expression, context = {}) {
         const fn = new Function(...keys, `return (${expression})`);
         return fn(...values);
     } catch (e) {
-        console.error('safeEval error:', expression, e);
+        console.error('unsafeEval error:', expression, e);
         return undefined;
     }
 }
@@ -131,7 +145,7 @@ function safeEval(expression, context = {}) {
 function parseTemplate(template) {
     return template.replace(/\{\{([\s\S]*?)\}\}/g, function (match, expression) {
         try {
-            const result = safeEval(expression.trim());
+            const result = unsafeEval(expression.trim());
             if (result !== undefined && result !== null) {
                 return String(result);
             }
@@ -205,7 +219,7 @@ class CustomForLoop extends HTMLElement {
             let array = [];
             const arrayAttr = this.getAttribute('array');
             if (arrayAttr) {
-                try { array = safeEval(arrayAttr) || []; } catch (e) { array = []; }
+                try { array = unsafeEval(arrayAttr) || []; } catch (e) { array = []; }
             }
 
             const start = parseInt(this.getAttribute('start')) || 0;
@@ -213,7 +227,7 @@ class CustomForLoop extends HTMLElement {
             let end = this.getAttribute('end');
 
             if (end !== null) {
-                try { end = safeEval(end); } catch (e) { end = parseInt(end) || array.length; }
+                try { end = unsafeEval(end); } catch (e) { end = parseInt(end) || array.length; }
             } else {
                 end = array.length;
             }
@@ -246,7 +260,7 @@ class CustomForLoop extends HTMLElement {
                         const evalExpr = expr
                             .replace(/__loopValue__/g, 'loopValue')
                             .replace(/__loopIndex__/g, 'loopIndex');
-                        const result = safeEval(evalExpr, { loopValue, loopIndex });
+                        const result = unsafeEval(evalExpr, { loopValue, loopIndex });
                         return result !== undefined && result !== null ? String(result) : '';
                     } catch (e) {
                         console.error('Loop expression error:', expr, e);
@@ -299,7 +313,7 @@ function renderDataLoops() {
             }
 
             let array = [];
-            try { array = safeEval(arrayName) || []; } catch (e) { return; }
+            try { array = unsafeEval(arrayName) || []; } catch (e) { return; }
 
             const pattern = /\$\{([\s\S]*?)\}/g;
             let outputHtml = '';
@@ -314,7 +328,7 @@ function renderDataLoops() {
 
                 iterHtml = iterHtml.replace(pattern, (match, expr) => {
                     try {
-                        const result = safeEval(expr, { loopValue, loopIndex });
+                        const result = unsafeEval(expr, { loopValue, loopIndex });
                         return result !== undefined && result !== null ? String(result) : '';
                     } catch (e) {
                         return match;
@@ -387,7 +401,7 @@ const setState = ({
             document.querySelectorAll('[data-js]').forEach(element => {
                 try {
                     const code = element.dataset.js.replace(/\bthis\b/g, 'element');
-                    safeEval(code, { element });
+                    unsafeEval(code, { element });
                 } catch (e) { console.error('data-js error:', e); }
             });
         }
@@ -396,7 +410,7 @@ const setState = ({
         if (innerhtml) {
             document.querySelectorAll('[data-innerhtml]').forEach(element => {
                 try {
-                    let content = safeEval(element.dataset.innerhtml);
+                    let content = unsafeEval(element.dataset.innerhtml);
                     if (content !== undefined && content !== null) {
                         content = String(content).replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                         element.innerHTML = content;
@@ -693,30 +707,30 @@ class ConditionBlock extends HTMLElement {
             const gteAttr = ifEl.getAttribute('gte');
             const lteAttr = ifEl.getAttribute('lte');
 
-            const value = safeEval(valueAttr);
+            const value = unsafeEval(valueAttr);
 
             if (eqAttr !== null) {
-                const compare = safeEval(eqAttr);
+                const compare = unsafeEval(eqAttr);
                 return value === compare;
             }
             if (neqAttr !== null) {
-                const compare = safeEval(neqAttr);
+                const compare = unsafeEval(neqAttr);
                 return value !== compare;
             }
             if (gtAttr !== null) {
-                const compare = safeEval(gtAttr);
+                const compare = unsafeEval(gtAttr);
                 return value > compare;
             }
             if (ltAttr !== null) {
-                const compare = safeEval(ltAttr);
+                const compare = unsafeEval(ltAttr);
                 return value < compare;
             }
             if (gteAttr !== null) {
-                const compare = safeEval(gteAttr);
+                const compare = unsafeEval(gteAttr);
                 return value >= compare;
             }
             if (lteAttr !== null) {
-                const compare = safeEval(lteAttr);
+                const compare = unsafeEval(lteAttr);
                 return value <= compare;
             }
 

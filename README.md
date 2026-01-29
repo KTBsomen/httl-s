@@ -1,19 +1,22 @@
-# HTTL-S - HyperText Templating Language (Simple)
+# HTTL-S  
+### HyperText Templating Language (Simple)
 
 A lightweight client-side templating framework for building dynamic HTML pages without build tools or Node.js.
 
 ## Features
 
-- ✅ **For Loops** - Iterate over arrays directly in HTML
-- ✅ **Data Loops** - Special loop for table rows (works in `<tbody>`)
-- ✅ **Nested If-Else** - Full support for deeply nested conditionals
-- ✅ **State Elements** - Simple reactive value display
-- ✅ **Template Includes** - Import HTML as reusable components with CSS isolation
-- ✅ **State Watching** - Auto-update UI when variables change
-- ✅ **TypeScript Support** - IntelliSense via `.d.ts` file
-- ✅ **VS Code Support** - Snippets and HTML custom data
+- **For Loops** - Iterate over arrays directly in HTML
+- **Data Loops** - Special loop for table rows (works in `<tbody>`)
+- **Nested If-Else** - Full support for deeply nested conditionals
+- **State Elements** - Simple reactive value display
+- **Template Includes** - Import HTML as reusable components with CSS isolation
+- **State Watching** - Auto-update UI when variables change
+- **TypeScript Support** - IntelliSense via `.d.ts` file
+- **VS Code Support** - Snippets and HTML custom data
 
 ---
+![License](https://img.shields.io/badge/license-Apache--2.0-blue)
+![CDN](https://img.shields.io/badge/CDN-jsDelivr-orange)
 
 ## Installation
 
@@ -362,7 +365,71 @@ Modern browsers with:
 - ES6+ (template literals, arrow functions)
 
 ---
+# Security, CSP & Usage Guidelines
+
+HTTL-S (HyperText Templating Language – Simple) is a **lightweight client-side templating framework** that evaluates JavaScript expressions directly in HTML templates.  
+This design choice enables flexibility and a small footprint, but it also comes with **important security and CSP implications**.
+
+---
+
+## Security Notice (Read Carefully)
+
+HTTL-S **evaluates JavaScript expressions at runtime** using `new Function()`.
+
+This means:
+
+- HTTL-S **MUST NOT** be used on **unsanitized or user-generated HTML**
+- HTTL-S **MUST NOT** process HTML coming from users, databases, CMS, or third-party sources without proper sanitization
+- HTTL-S is **NOT safe** against XSS when used on untrusted content
+
+If your application renders user-submitted HTML, **do not mount HTTL-S on those DOM regions**.
+
+> HTTL-S is designed for **developer-controlled templates only**.
+
+---
+## Content Security Policy (CSP)
+
+HTTL-S uses `new Function()` for expression evaluation.
+
+Because of this:
+
+- HTTL-S **requires `unsafe-eval`** in CSP
+- HTTL-S **does NOT work with strict CSP policies**
+- There is **no CSP-safe build** at the moment
+
+Example CSP required:
+```http
+Content-Security-Policy:
+  script-src 'self' 'unsafe-eval';
+```
+
+## Recommended For
+- Internal tools, dashboards, prototypes
+- Static or developer-authored templates
+- Projects without strict CSP requirements
+
+## Not Recommended For
+- Unsanitized user-generated content
+- Public apps with untrusted HTML
+- Security-critical or strict CSP environments
+
+## Future Improvements
+- Explicit mount targets
+- Safer expression evaluation mode
+- Deprecate `data-js`
+- Optional HTML sanitization
+- CSP-friendly build
+
 
 ## License
 
-MIT
+Licensed under the Apache License, Version 2.0.  
+See the LICENSE file for details.
+> This library is safe to use via CDN and npm under Apache-2.0.
+
+## Copyright
+
+Copyright © 2026 Somen Das
+
+
+
