@@ -532,7 +532,7 @@ class IncludeTemplate extends HTMLElement {
 }
 
 // ============================================================================
-// CONDITION BLOCK - FIXED RECURSIVE PROCESSING
+// CONDITION BLOCK - RECURSIVE PROCESSING
 // ============================================================================
 
 class ConditionBlock extends HTMLElement {
