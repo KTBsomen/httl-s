@@ -251,12 +251,12 @@ setState({
 
 ---
 
-### `safeEval(expression, context)`
+### `unsafeEval(expression, context)`
 
 Safely evaluate a JavaScript expression.
 
 ```javascript
-const result = safeEval('a + b', { a: 1, b: 2 }); // 3
+const result = unsafeEval('a + b', { a: 1, b: 2 }); // 3
 ```
 
 ---
