@@ -83,8 +83,11 @@ const loader = {
 /** @type {WeakSet<Function>} Tracks callbacks already scheduled for this tick */
 const scheduledCallbacks = new WeakSet();
 
-/** @type {WeakMap<Object, Proxy>} Cache for proxies to prevent recreation */
+/** @type {WeakMap<Object, WeakMap<Function, Proxy>>} Cache for proxies per target+callback */
 const proxyCache = new WeakMap();
+
+/** @type {boolean} Guard against infinite loops during callback execution */
+let isFlushing = false;
 
 /**
  * Schedules a callback to run once per microtask tick (batching)
@@ -96,18 +99,25 @@ function scheduleCallback(cb) {
     scheduledCallbacks.add(cb);
 
     queueMicrotask(() => {
+        if (isFlushing) return; // Prevent infinite loops
+        isFlushing = true;
+
         scheduledCallbacks.delete(cb);
-        cb();
+        try {
+            cb();
+        } finally {
+            isFlushing = false;
+        }
     });
 }
 
-/** @type {string[]} List of watched variable names */
-const watchedVars = [];
+/** @type {Set<string>} Set of watched variable names (for duplicate protection) */
+const watchedVars = new Set();
 
 /**
  * Creates a deep proxy that watches for nested property changes
  * @param {*} target - The object/array to watch
- * @param {function} callback - Function to call on any change
+ * @param {function} callback - Function to call on any change (MUST be stable identity)
  * @returns {Proxy} Proxied version of the target
  */
 function createDeepProxy(target, callback) {
@@ -121,38 +131,43 @@ function createDeepProxy(target, callback) {
         );
     }
 
-    // Check if we already have a proxy for this target
-    if (proxyCache.has(target)) {
-        return proxyCache.get(target);
+    // Check if we already have a proxy for this target+callback combo
+    let callbackMap = proxyCache.get(target);
+    if (callbackMap && callbackMap.has(callback)) {
+        return callbackMap.get(callback);
     }
 
     const proxy = new Proxy(target, {
-        get(obj, prop) {
-            const value = obj[prop];
+        get(obj, prop, receiver) {
+            const value = Reflect.get(obj, prop, receiver);
             // Recursively proxy nested objects/arrays (with caching)
             if (typeof value === 'object' && value !== null) {
                 return createDeepProxy(value, callback);
             }
             return value;
         },
-        set(obj, prop, value) {
+        set(obj, prop, value, receiver) {
             // Ignore array 'length' changes - they're noise from push/pop/etc
             if (Array.isArray(obj) && prop === 'length') {
-                obj[prop] = value;
-                return true;
+                return Reflect.set(obj, prop, value, receiver);
             }
-            obj[prop] = value;
+            const result = Reflect.set(obj, prop, value, receiver);
             scheduleCallback(callback); // Batched callback - fires ONCE per tick
-            return true;
+            return result;
         },
         deleteProperty(obj, prop) {
-            delete obj[prop];
+            const result = Reflect.deleteProperty(obj, prop);
             scheduleCallback(callback); // Batched callback
-            return true;
+            return result;
         }
     });
 
-    proxyCache.set(target, proxy);
+    // Store in cache with target -> callback -> proxy structure
+    if (!callbackMap) {
+        callbackMap = new WeakMap();
+        proxyCache.set(target, callbackMap);
+    }
+    callbackMap.set(callback, proxy);
     return proxy;
 }
 
@@ -169,38 +184,39 @@ function watch(propName, cb, defaultValue = undefined) {
             `Did you accidentally call the function? Use like "watch('varName', ()=>setState())" not "watch('varName', setState())"`
         );
     }
-    let _value = defaultValue;
 
     if (propName in window) {
         console.warn(`HTTL-S: "${propName}" already exists on window`);
     }
-    console.log("watch", propName, cb, defaultValue);
+
+    let _value;
+
+    // ✅ STABLE callback identity - same function reference for all mutations
+    const trigger = () => cb(propName, _value);
 
     // Wrap objects/arrays in proxy for deep watching
     if (typeof defaultValue === 'object' && defaultValue !== null) {
-        _value = createDeepProxy(defaultValue, () => {
-            cb(propName, _value);
-        });
+        _value = createDeepProxy(defaultValue, trigger);
+    } else {
+        _value = defaultValue;
     }
 
     Object.defineProperty(window, propName, {
-        get: function () { return _value; },
-        set: function (value) {
+        get() { return _value; },
+        set(value) {
             // Wrap new objects/arrays in proxy too
             if (typeof value === 'object' && value !== null) {
-                _value = createDeepProxy(value, () => {
-                    cb(propName, _value);
-                });
+                _value = createDeepProxy(value, trigger);
             } else {
                 _value = value;
             }
-            cb(propName, _value);
+            scheduleCallback(trigger); // Use scheduled trigger, not direct call
         },
         configurable: true,
         enumerable: true
     });
 
-    watchedVars.push(propName);
+    watchedVars.add(propName);
 }
 // ============================================================================
 // EXPRESSION EVALUATION HELPERS
