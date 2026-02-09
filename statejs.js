@@ -513,23 +513,19 @@ function setState({
     try {
         if (showloader) loader.show();
 
-        // Update specific loop by ID
+        // Update specific loop by ID (if provided)
         if (loopid) {
             document.querySelectorAll(`for-loop[loopid="${loopid}"]`).forEach(el => el.render && el.render());
-            if (showloader) loader.hide();
-            return;
         }
 
-        // Update specific condition by ID
+        // Update specific condition by ID (if provided)
         if (ifid) {
             document.querySelectorAll(`condition-block[ifid="${ifid}"]`).forEach(el => el.render && el.render());
-            if (showloader) loader.hide();
-            return;
         }
+
+        // Update specific state element by ID (if provided)
         if (stateId) {
-            document.querySelectorAll(`state-element[stateId=${stateId}]`).forEach(el => el.render && el.render());
-            if (showloader) loader.hide();
-            return;
+            document.querySelectorAll(`state-element[stateId="${stateId}"]`).forEach(el => el.render && el.render());
         }
         // Process data-js attributes
         if (datajs) {
