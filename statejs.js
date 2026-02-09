@@ -86,8 +86,8 @@ const scheduledCallbacks = new WeakSet();
 /** @type {WeakMap<Object, WeakMap<Function, Proxy>>} Cache for proxies per target+callback */
 const proxyCache = new WeakMap();
 
-/** @type {boolean} Guard against infinite loops during callback execution */
-let isFlushing = false;
+/** @type {Function|null} Currently executing watcher callback (for self-mutation detection) */
+let activeWatcher = null;
 
 /**
  * Schedules a callback to run once per microtask tick (batching)
@@ -99,14 +99,12 @@ function scheduleCallback(cb) {
     scheduledCallbacks.add(cb);
 
     queueMicrotask(() => {
-        if (isFlushing) return; // Prevent infinite loops
-        isFlushing = true;
-
         scheduledCallbacks.delete(cb);
+        activeWatcher = cb;
         try {
             cb();
         } finally {
-            isFlushing = false;
+            activeWatcher = null;
         }
     });
 }
@@ -117,7 +115,7 @@ const watchedVars = new Set();
 /**
  * Creates a deep proxy that watches for nested property changes
  * @param {*} target - The object/array to watch
- * @param {function} callback - Function to call on any change (MUST be stable identity)
+ * @param {function} callback - Function to call on any change (MUST be stable identity with __watchedProp)
  * @returns {Proxy} Proxied version of the target
  */
 function createDeepProxy(target, callback) {
@@ -147,6 +145,14 @@ function createDeepProxy(target, callback) {
             return value;
         },
         set(obj, prop, value, receiver) {
+            // Detect self-mutation: watcher trying to mutate its own state
+            if (activeWatcher === callback) {
+                throw new Error(
+                    `HTTL-S Error: Watcher for "${callback.__watchedProp}" mutated its own state.\n` +
+                    `This causes infinite loops. Move mutations outside the watcher callback.`
+                );
+            }
+
             // Ignore array 'length' changes - they're noise from push/pop/etc
             if (Array.isArray(obj) && prop === 'length') {
                 return Reflect.set(obj, prop, value, receiver);
@@ -156,6 +162,14 @@ function createDeepProxy(target, callback) {
             return result;
         },
         deleteProperty(obj, prop) {
+            // Detect self-mutation on delete too
+            if (activeWatcher === callback) {
+                throw new Error(
+                    `HTTL-S Error: Watcher for "${callback.__watchedProp}" mutated its own state.\n` +
+                    `This causes infinite loops. Move mutations outside the watcher callback.`
+                );
+            }
+
             const result = Reflect.deleteProperty(obj, prop);
             scheduleCallback(callback); // Batched callback
             return result;
@@ -193,6 +207,8 @@ function watch(propName, cb, defaultValue = undefined) {
 
     // ✅ STABLE callback identity - same function reference for all mutations
     const trigger = () => cb(propName, _value);
+    // Tag trigger with property name for error messages
+    trigger.__watchedProp = propName;
 
     // Wrap objects/arrays in proxy for deep watching
     if (typeof defaultValue === 'object' && defaultValue !== null) {
@@ -204,6 +220,14 @@ function watch(propName, cb, defaultValue = undefined) {
     Object.defineProperty(window, propName, {
         get() { return _value; },
         set(value) {
+            // Detect self-mutation on root assignment
+            if (activeWatcher === trigger) {
+                throw new Error(
+                    `HTTL-S Error: Watcher for "${propName}" mutated its own state.\n` +
+                    `This causes infinite loops. Move mutations outside the watcher callback.`
+                );
+            }
+
             // Wrap new objects/arrays in proxy too
             if (typeof value === 'object' && value !== null) {
                 _value = createDeepProxy(value, trigger);
