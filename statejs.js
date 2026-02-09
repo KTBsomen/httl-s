@@ -79,6 +79,28 @@ const loader = {
 // ============================================================================
 // STATE WATCHING
 // ============================================================================
+
+/** @type {WeakSet<Function>} Tracks callbacks already scheduled for this tick */
+const scheduledCallbacks = new WeakSet();
+
+/** @type {WeakMap<Object, Proxy>} Cache for proxies to prevent recreation */
+const proxyCache = new WeakMap();
+
+/**
+ * Schedules a callback to run once per microtask tick (batching)
+ * This prevents callback storms when multiple mutations happen in sequence
+ * @param {Function} cb - Callback to schedule
+ */
+function scheduleCallback(cb) {
+    if (scheduledCallbacks.has(cb)) return; // Already scheduled for this tick
+    scheduledCallbacks.add(cb);
+
+    queueMicrotask(() => {
+        scheduledCallbacks.delete(cb);
+        cb();
+    });
+}
+
 /** @type {string[]} List of watched variable names */
 const watchedVars = [];
 
@@ -98,26 +120,40 @@ function createDeepProxy(target, callback) {
             `Did you accidentally call the function? Use like "watch('varName', ()=>setState())" not "watch('varName', setState())"`
         );
     }
-    return new Proxy(target, {
+
+    // Check if we already have a proxy for this target
+    if (proxyCache.has(target)) {
+        return proxyCache.get(target);
+    }
+
+    const proxy = new Proxy(target, {
         get(obj, prop) {
             const value = obj[prop];
-            // Recursively proxy nested objects/arrays
+            // Recursively proxy nested objects/arrays (with caching)
             if (typeof value === 'object' && value !== null) {
                 return createDeepProxy(value, callback);
             }
             return value;
         },
         set(obj, prop, value) {
+            // Ignore array 'length' changes - they're noise from push/pop/etc
+            if (Array.isArray(obj) && prop === 'length') {
+                obj[prop] = value;
+                return true;
+            }
             obj[prop] = value;
-            callback(); // Trigger callback on any change
+            scheduleCallback(callback); // Batched callback - fires ONCE per tick
             return true;
         },
         deleteProperty(obj, prop) {
             delete obj[prop];
-            callback(); // Trigger on deletion
+            scheduleCallback(callback); // Batched callback
             return true;
         }
     });
+
+    proxyCache.set(target, proxy);
+    return proxy;
 }
 
 /**
