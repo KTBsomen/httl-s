@@ -14,6 +14,10 @@ A lightweight client-side templating framework for building dynamic HTML pages w
 - **TypeScript Support** - IntelliSense via `.d.ts` file
 - **VS Code Support** - Snippets and HTML custom data
 
+### Documentation
+Read the full documentation here:
+https://ktbsomen.github.io/httl-s/
+
 ---
 ![License](https://img.shields.io/badge/license-Apache--2.0-blue)
 ![CDN](https://img.shields.io/badge/CDN-jsDelivr-orange)
