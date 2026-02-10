@@ -1,0 +1,48 @@
+<nav class="navbar" id="navbar">
+    <div class="container">
+        <a href="#" class="navbar-brand">
+            <i class="fa-solid fa-code"></i>
+            HTTL-S
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <ul class="navbar-links" id="navLinks">
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#install">Install</a></li>
+            <li><a href="#api">API</a></li>
+            <li><a href="documentation.html" class="docs-link"><i class="fa-solid fa-book"></i> Docs</a></li>
+            <li><a href="#playground">Playground</a></li>
+            <li><a href="#comparison">Compare</a></li>
+            <li>
+                <a href="https://github.com/KTBsomen/httl-s" target="_blank" rel="noopener" class="btn-sm">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<script>
+    // ── Mobile nav toggle ───────────────────────────────────────────────────────
+    document.getElementById('navToggle').addEventListener('click', () => {
+        document.getElementById('navLinks').classList.toggle('open');
+    });
+
+    // Close mobile nav on link click
+    document.querySelectorAll('.navbar-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('navLinks').classList.remove('open');
+        });
+    });
+
+    // ── Navbar background on scroll ─────────────────────────────────────────────
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('navbar');
+        if (window.scrollY > 20) {
+            nav.style.borderBottomColor = 'var(--border)';
+        } else {
+            nav.style.borderBottomColor = 'var(--border)';
+        }
+    });
+</script>

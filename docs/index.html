@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTL-S — Declarative HTML Templating for Vanilla JavaScript</title>
+    <meta name="description"
+        content="Lightweight client-side templating framework with loops, conditions, and state management. No build tools, no Node.js — just HTML and JavaScript. CDN-ready.">
+    <meta name="keywords"
+        content="HTML templating, vanilla JavaScript, no build tool, client-side rendering, declarative UI, Alpine.js alternative, lightweight framework">
+    <meta name="author" content="Somen Das">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="HTTL-S — HTML Templating Without Build Tools">
+    <meta property="og:description"
+        content="Declarative loops, conditions, and state directly in HTML. Perfect for vanilla JS projects. Zero build step required.">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HTTL-S — HTML Templating for Vanilla JS">
+    <meta name="twitter:description" content="No DOM APIs. No JSX. No build step. Just HTML and JavaScript.">
+    <style>
+        for-loop:not(:defined),
+        condition-block:not(:defined),
+        state-element:not(:defined),
+        include-template:not(:defined) {
+            visibility: hidden;
+        }
+    </style>
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "HTTL-S",
+    "description": "HyperText Templating Language (Simple) — Declarative HTML templating for vanilla JavaScript",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0" },
+    "author": { "@type": "Person", "name": "Somen Das" }
+  }
+  </script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+
+<body>
+
+    <!-- ═══════════════════════════════════════════════════════
+       NAVBAR
+       ═══════════════════════════════════════════════════════ -->
+    <include-template file="components/nav.html" scoped="false"></include-template>
+    <!-- ═══════════════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════════════ -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <i class="fa-solid fa-bolt"></i> Zero build step &middot; CDN-first
+            </div>
+            <h1>Declarative HTML Templating<br>for <span>Vanilla JavaScript</span></h1>
+            <p>
+                Describe loops, conditions, and state directly in HTML while JavaScript only mutates data.
+                No DOM APIs. No JSX. No build step.
+            </p>
+            <div class="hero-cta">
+                <a href="#install" class="btn btn-primary">
+                    <i class="fa-solid fa-rocket"></i> Get Started
+                </a>
+                <a href="documentation.html" class="btn btn-secondary">
+                    <i class="fa-solid fa-book"></i> Read the docs
+                </a>
+                <a href="https://github.com/KTBsomen/httl-s" target="_blank" rel="noopener" class="btn btn-secondary">
+                    <i class="fa-brands fa-github"></i> View on GitHub
+                </a>
+            </div>
+
+            <!-- ── Live Demo: this IS the demo, code block below matches exactly ── -->
+            <div class="hero-demo" style="margin-top:3rem;">
+                <div class="demo-header">
+                    <div class="demo-dots"><span></span><span></span><span></span></div>
+                    <span class="demo-title">Live Output</span>
+                    <span class="demo-title" style="color:var(--green);">
+                        <i class="fa-solid fa-circle" style="font-size:.5rem;vertical-align:middle;"></i> Running
+                    </span>
+                </div>
+                <div class="demo-body" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                    <span style="color:var(--text-secondary);">Count:</span>
+                    <state-element stateId="heroCounter">
+                        <template stateId="heroCounter">
+                            <span class="demo-count" style="font-size:1.5rem;">{{clickCount}}</span>
+                        </template>
+                    </state-element>
+                    <button onclick="clickCount++"
+                        style="background:var(--accent);color:#fff;border:none;padding:.4rem 1rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:.875rem;">
+                        + Increment
+                    </button>
+                    <button onclick="clickCount = 0"
+                        style="background:var(--bg-tertiary);color:var(--text-secondary);border:1px solid var(--border);padding:.4rem 1rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;font-size:.875rem;">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Code block: shows EXACTLY the code that powers the live demo above -->
+            <div class="hero-demo" style="margin-top:1rem;">
+                <div class="demo-header">
+                    <div class="demo-dots"><span></span><span></span><span></span></div>
+                    <span class="demo-title">index.html — Copy &amp; paste this!</span>
+                    <button class="copy-btn" onclick="copyCode(this, 'heroCode')">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="demo-body">
+                    <pre id="heroCode"><span class="syn-cmt">&lt;!-- 1. Include HTTL-S from CDN --&gt;</span>
+<span class="syn-tag">&lt;script</span> <span class="syn-attr">src</span>=<span class="syn-str">"https://cdn.jsdelivr.net/gh/KTBsomen/httl-s@main/statejs.js"</span><span class="syn-tag">&gt;&lt;/script&gt;</span>
+
+<span class="syn-cmt">&lt;!-- 2. HTML declares how state renders --&gt;</span>
+<span class="syn-tag">&lt;p&gt;</span>Count: 
+  <span class="syn-tag">&lt;state-element</span> <span class="syn-attr">stateId</span>=<span class="syn-str">"counter"</span><span class="syn-tag">&gt;</span>
+    <span class="syn-tag">&lt;template</span> <span class="syn-attr">stateId</span>=<span class="syn-str">"counter"</span><span class="syn-tag">&gt;</span>
+      <span class="syn-tag">&lt;span&gt;</span><span class="syn-var">{{clickCount}}</span><span class="syn-tag">&lt;/span&gt;</span>
+    <span class="syn-tag">&lt;/template&gt;</span>
+  <span class="syn-tag">&lt;/state-element&gt;</span>
+<span class="syn-tag">&lt;/p&gt;</span>
+
+<span class="syn-tag">&lt;button</span> <span class="syn-attr">onclick</span>=<span class="syn-str">"clickCount++"</span><span class="syn-tag">&gt;</span>+ Increment<span class="syn-tag">&lt;/button&gt;</span>
+<span class="syn-tag">&lt;button</span> <span class="syn-attr">onclick</span>=<span class="syn-str">"clickCount = 0"</span><span class="syn-tag">&gt;</span>Reset<span class="syn-tag">&lt;/button&gt;</span>
+
+<span class="syn-cmt">&lt;!-- 3. JavaScript: watch a variable, re-render on change --&gt;</span>
+<span class="syn-tag">&lt;script&gt;</span>
+  <span class="syn-fn">watch</span>(<span class="syn-str">'clickCount'</span>, (<span class="syn-var">name</span>, <span class="syn-var">value</span>) <span class="syn-kw">=&gt;</span> {
+    <span class="syn-fn">setState</span>({ <span class="syn-attr">stateId</span>: <span class="syn-str">'counter'</span>, <span class="syn-attr">showloader</span>: <span class="syn-kw">false</span> });
+  }, <span class="syn-num">0</span>);
+
+  <span class="syn-fn">initState</span>();
+<span class="syn-tag">&lt;/script&gt;</span></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       HOW IT WORKS
+       ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-diagram-project"></i></div>
+                <h2>How It Works</h2>
+                <p>Three simple concepts — that's the entire mental model.</p>
+            </div>
+            <div class="steps-grid">
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>HTML Declares</h3>
+                    <p>Use custom elements like <code>&lt;for-loop&gt;</code> and <code>&lt;condition-block&gt;</code>
+                        to describe <em>how</em> data should render.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>JavaScript Mutates</h3>
+                    <p>Just change your variables normally. Arrays, objects, primitives — plain JS, nothing special.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>setState Rebuilds</h3>
+                    <p>Call <code>setState()</code> to explicitly trigger DOM updates. No hidden magic, no virtual DOM.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       FEATURES (rendered with <for-loop>)
+       ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-cubes"></i></div>
+                <h2>Features</h2>
+                <p>Everything you need for dynamic HTML — nothing you don't.</p>
+            </div>
+            <div class="features-grid">
+                <for-loop array="features" valueVar="feat" indexVar="fi" loopid="featureCards">
+                    <template loopid="featureCards">
+                        <div class="feature-card">
+                            <div class="feature-icon ${feat.colorClass}">
+                                <i class="${feat.icon}"></i>
+                            </div>
+                            <h3>${feat.title}</h3>
+                            <p>${feat.desc}</p>
+                        </div>
+                    </template>
+                </for-loop>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       WHAT IT IS / IS NOT (rendered with <for-loop>)
+       ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="positioning">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-bullseye"></i></div>
+                <h2>What HTTL-S Is &amp; Isn't</h2>
+                <p>Honest positioning — no overpromises.</p>
+            </div>
+            <div class="positioning">
+                <!-- IS column -->
+                <div class="positioning-col">
+                    <h3><i class="fa-solid fa-check-circle"></i> HTTL-S Is</h3>
+                    <ul>
+                        <for-loop array="isItems" valueVar="item" loopid="isList">
+                            <template loopid="isList">
+                                <li class="pos-yes"><i class="fa-solid fa-check"></i> ${item}</li>
+                            </template>
+                        </for-loop>
+                    </ul>
+                </div>
+                <!-- IS NOT column -->
+                <div class="positioning-col">
+                    <h3><i class="fa-solid fa-times-circle"></i> HTTL-S Is Not</h3>
+                    <ul>
+                        <for-loop array="isNotItems" valueVar="item" loopid="isNotList">
+                            <template loopid="isNotList">
+                                <li class="pos-no"><i class="fa-solid fa-xmark"></i> ${item}</li>
+                            </template>
+                        </for-loop>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       GOOD FOR / NOT FOR (rendered with <for-loop>)
+       ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="use-cases">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-lightbulb"></i></div>
+                <h2>When to Use HTTL-S</h2>
+                <p>The right tool for the right job.</p>
+            </div>
+            <div class="use-cases">
+                <div class="use-case-box">
+                    <h3><i class="fa-solid fa-thumbs-up"></i> Great For</h3>
+                    <ul>
+                        <for-loop array="goodFor" valueVar="item" loopid="goodForList">
+                            <template loopid="goodForList">
+                                <li class="pos-yes"><i class="fa-solid fa-check"></i> ${item}</li>
+                            </template>
+                        </for-loop>
+                    </ul>
+                </div>
+                <div class="use-case-box">
+                    <h3><i class="fa-solid fa-thumbs-down"></i> Not Ideal For</h3>
+                    <ul>
+                        <for-loop array="notFor" valueVar="item" loopid="notForList">
+                            <template loopid="notForList">
+                                <li class="pos-no"><i class="fa-solid fa-xmark"></i> ${item}</li>
+                            </template>
+                        </for-loop>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       INSTALLATION
+       ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="install">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-download"></i></div>
+                <h2>Installation</h2>
+                <p>Three steps. Zero config. Start building in under a minute.</p>
+            </div>
+            <div class="install-steps">
+                <!-- Step 1 -->
+                <div class="install-step">
+                    <div class="install-step-header">
+                        <span class="step-label">Step 1 — Include the script</span>
+                        <button class="copy-btn" onclick="copyCode(this, 'install1')">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <pre
+                        id="install1"><span class="syn-tag">&lt;script</span> <span class="syn-attr">src</span>=<span class="syn-str">"https://cdn.jsdelivr.net/gh/KTBsomen/httl-s@main/statejs.js"</span><span class="syn-tag">&gt;&lt;/script&gt;</span></pre>
+                </div>
+                <!-- Step 2 -->
+                <div class="install-step">
+                    <div class="install-step-header">
+                        <span class="step-label">Step 2 — Set up watched variables</span>
+                        <button class="copy-btn" onclick="copyCode(this, 'install2')">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <pre id="install2"><span class="syn-fn">watch</span>(<span class="syn-str">'myVar'</span>, (<span class="syn-var">name</span>, <span class="syn-var">value</span>) => {
+  <span class="syn-fn">setState</span>({ <span class="syn-attr">loops</span>: <span class="syn-kw">true</span>, <span class="syn-attr">conditions</span>: <span class="syn-kw">true</span> });
+}, <span class="syn-var">initialValue</span>);</pre>
+                </div>
+                <!-- Step 3 -->
+                <div class="install-step">
+                    <div class="install-step-header">
+                        <span class="step-label">Step 3 — Initialize (call LAST!)</span>
+                        <button class="copy-btn" onclick="copyCode(this, 'install3')">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <pre id="install3"><span class="syn-fn">initState</span>();</pre>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="window.location.href='documentation.html'">
+                        <i class="fa-solid fa-book"></i> Read the full documentation
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       API REFERENCE (rendered with data-loop table)
+       ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="api">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-book"></i></div>
+                <h2>API Reference</h2>
+                <p>The complete API — intentionally small.</p>
+            </div>
+            <div class="api-table-wrap">
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody data-loop="apiMethods" data-template="#apiRowTpl" data-value="api" data-index="ai">
+                    </tbody>
+                </table>
+            </div>
+            <template id="apiRowTpl">
+                <tr>
+                    <td><code>${api.name}</code></td>
+                    <td class="api-desc" no-parse>${api.desc}</td>
+                    <td><code>${api.example}</code></td>
+                </tr>
+            </template>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       HTML ELEMENTS (rendered with data-loop table)
+       ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="elements">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-tags"></i></div>
+                <h2>Custom HTML Elements</h2>
+                <p>Declarative building blocks for your templates.</p>
+            </div>
+            <div class="api-table-wrap">
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Element</th>
+                            <th>Purpose</th>
+                            <th>Key Attribute</th>
+                        </tr>
+                    </thead>
+                    <tbody data-loop="htmlElements" data-template="#elemRowTpl" data-value="el" data-index="ei">
+                    </tbody>
+                </table>
+            </div>
+            <template id="elemRowTpl">
+                <tr>
+                    <td><code>${el.tag}</code></td>
+                    <td class="api-desc">${el.purpose}</td>
+                    <td><code>${el.attr}</code></td>
+                </tr>
+            </template>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       INTERACTIVE PLAYGROUND
+       ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="playground">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-play"></i></div>
+                <h2>Interactive Playground</h2>
+                <p>Edit the HTML on the left — see it render live on the right.</p>
+            </div>
+            <div class="playground-wrap">
+                <div class="playground-editor">
+                    <div class="playground-panel-header">
+                        <span><i class="fa-solid fa-file-code"></i> editor.html</span>
+                        <button class="btn" onclick="runPlayground()"><i class="fa-solid fa-play"></i>
+                            Run</button>
+                    </div>
+                    <div class="editor-container">
+                        <pre class="editor-highlight" aria-hidden="true"><code id="editorHighlight"></code></pre>
+                        <textarea id="playgroundInput" spellcheck="false" oninput="updateHighlight()"
+                            onscroll="syncScroll()">&lt;for-loop array="fruits" valueVar="fruit" indexVar="i" loopid="pg"&gt;
+  &lt;template loopid="pg"&gt;
+    &lt;p&gt;${i + 1}. ${fruit}&lt;/p&gt;
+  &lt;/template&gt;
+&lt;/for-loop&gt;
+&lt;button onclick="fruits.push('Grape')"&gt;Add Fruit&lt;/button&gt;
+&lt;script&gt;
+    watch('fruits', (n, v) =&gt; {
+        setState({ loops: true, showloader: false });
+    }, ['Apple', 'Banana', 'Cherry']);
+    initState();
+&lt;/script&gt;</textarea>
+                    </div>
+                </div>
+                <div class="playground-preview">
+                    <div class="playground-panel-header">
+                        <span><i class="fa-solid fa-eye"></i> preview</span>
+                        <button class="copy-btn" onclick="clearPlayground()"><i class="fa-solid fa-trash-can"></i>
+                            Clear</button>
+                    </div>
+                    <div class="playground-preview-content" id="playgroundOutput">
+                        <p style="color:var(--text-muted);">Click <strong>Run</strong> to see output.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       COMPARISON TABLE (rendered with data-loop)
+       ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="comparison">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                <h2>How It Compares</h2>
+                <p>The honest comparison — use what fits your project.</p>
+            </div>
+            <div class="comparison-table-wrap">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th class="highlight-col">HTTL-S</th>
+                            <th>Alpine.js</th>
+                            <th>Vue (CDN)</th>
+                            <th>React</th>
+                        </tr>
+                    </thead>
+                    <tbody data-loop="comparisonData" data-template="#cmpRowTpl" data-value="row" data-index="ri">
+                    </tbody>
+                </table>
+            </div>
+            <template id="cmpRowTpl">
+                <tr>
+                    <td>${row.feature}</td>
+                    <td class="highlight-col">${row.httls}</td>
+                    <td>${row.alpine}</td>
+                    <td>${row.vue}</td>
+                    <td>${row.react}</td>
+                </tr>
+            </template>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════ -->
+    <footer class="footer">
+        <div class="container">
+            <p>
+                <a href="https://github.com/KTBsomen/httl-s" target="_blank" rel="noopener">GitHub</a>
+                &nbsp;&middot;&nbsp;
+                <a href="https://github.com/KTBsomen/httl-s/issues" target="_blank" rel="noopener">Report a Bug</a>
+                &nbsp;&middot;&nbsp;
+                <a href="https://github.com/KTBsomen/httl-s/blob/main/LICENSE" target="_blank" rel="noopener">Apache 2.0
+                    License</a>
+            </p>
+            <p>&copy; 2026 Somen Das. All rights reserved.</p>
+            <div class="footer-built">
+                <i class="fa-solid fa-code"></i> This site is built with HTTL-S
+            </div>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════════════
+       SCRIPTS
+       ═══════════════════════════════════════════════════════ -->
+    <script src="../statejs.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

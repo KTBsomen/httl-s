@@ -254,6 +254,7 @@ function watch(propName, cb, defaultValue = undefined) {
  */
 function unsafeEval(expression, context = {}) {
     try {
+        if (!expression) return '';
         // Create context variables in local scope
         const keys = Object.keys(context);
         const values = Object.values(context);
@@ -273,12 +274,33 @@ function unsafeEval(expression, context = {}) {
 }
 
 /**
- * Parses JavaScript expressions inside {{}} in a template string
+ * Parses JavaScript expressions inside {{}} in a template string.
+ * Content inside elements with the `no-parse` attribute is protected
+ * from expression evaluation — {{}} in those regions is kept as literal text.
+ *
+ * Usage: <td no-parse>${item.desc}</td>
+ *   If item.desc contains "{{expression}}", it will render as literal text.
+ *
  * @param {string} template - Template string containing {{expression}} placeholders
  * @returns {string} Parsed template with expressions evaluated
  */
 function parseTemplate(template) {
-    return template.replace(/\{\{([\s\S]*?)\}\}/g, function (match, expression) {
+    // ── Protect no-parse regions ─────────────────────────────
+    const OPEN_SENTINEL = '\x00NP_O\x00';
+    const CLOSE_SENTINEL = '\x00NP_C\x00';
+    const noParseRe = /(<[^>]+\bno-parse\b[^>]*>)([\s\S]*?)(<\/[^>]+>)/gi;
+
+    let safe = template.replace(noParseRe, (_, openTag, content, closeTag) => {
+        const escaped = content
+            .replace(/\{\{/g, OPEN_SENTINEL)
+            .replace(/\}\}/g, CLOSE_SENTINEL);
+        // Strip the no-parse attr from the rendered tag
+        return openTag.replace(/\sno-parse(?:\s*=\s*["'][^"']*["'])?/i, '')
+            + escaped + closeTag;
+    });
+
+    // ── Evaluate {{expression}} placeholders ─────────────────
+    safe = safe.replace(/\{\{([\s\S]*?)\}\}/g, function (match, expression) {
         try {
             const result = unsafeEval(expression.trim());
             if (result !== undefined && result !== null) {
@@ -290,6 +312,11 @@ function parseTemplate(template) {
             return match;
         }
     });
+
+    // ── Restore no-parse sentinels to literal {{ }} ──────────
+    return safe
+        .replaceAll(OPEN_SENTINEL, '{{')
+        .replaceAll(CLOSE_SENTINEL, '}}');
 }
 
 /**
@@ -409,6 +436,8 @@ class CustomForLoop extends HTMLElement {
             // Preserve template and update content
             const templateCopy = `<template loopid="${loopId}">${this._originalTemplate}</template>`;
             this.innerHTML = parseTemplate(outputHtml) + templateCopy;
+            this.querySelectorAll('condition-block').forEach(el => el.render());
+
 
         } catch (error) {
             console.error('for-loop error:', error);

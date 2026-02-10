@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTL-S Documentation — Complete API Reference</title>
+    <meta name="description"
+        content="Comprehensive documentation for HTTL-S: reactive HTML templating with no build step.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/docs.css">
+</head>
+
+<body>
+
+    <!-- Sidebar Toggle (mobile) -->
+    <button class="sidebar-toggle" aria-label="Toggle sidebar"><i class="fa-solid fa-bars"></i></button>
+    <div class="sidebar-overlay"></div>
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="docs-sidebar">
+        <a href="index.html" class="sidebar-brand"><i class="fa-solid fa-code"></i> HTTL-S</a>
+        <div class="sidebar-search">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="docsSearch" placeholder="Search docs…">
+        </div>
+        <ul class="sidebar-nav">
+            <li class="nav-group">Getting Started</li>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#hello-world">Hello World</a></li>
+            <li><a href="#project-setup">Project Setup</a></li>
+
+            <li class="nav-group">Core Concepts</li>
+            <li><a href="#mental-model">Mental Model</a></li>
+            <li><a href="#reactivity">Reactivity Flow</a></li>
+            <li><a href="#template-expr">Template Expressions</a></li>
+            <li><a href="#render-lifecycle">Render Lifecycle</a></li>
+
+            <li class="nav-group">API Reference</li>
+            <li><a href="#fn-watch"><code>watch()</code></a></li>
+            <li><a href="#fn-setstate"><code>setState()</code></a></li>
+            <li><a href="#fn-initstate"><code>initState()</code></a></li>
+            <li><a href="#fn-parsetemplate"><code>parseTemplate()</code></a></li>
+            <li><a href="#fn-unsafeeval"><code>unsafeEval()</code></a></li>
+            <li><a href="#fn-createrange"><code>createRangeArray()</code></a></li>
+            <li><a href="#fn-renderdataloops"><code>renderDataLoops()</code></a></li>
+            <li><a href="#fn-parseurl"><code>parseURL()</code></a></li>
+            <li><a href="#fn-loader"><code>loader</code></a></li>
+            <li><a href="#fn-helpers">Helpers</a></li>
+
+            <li class="nav-group">Custom Elements</li>
+            <li><a href="#el-for-loop"><code>&lt;for-loop&gt;</code></a></li>
+            <li><a href="#el-condition-block"><code>&lt;condition-block&gt;</code></a></li>
+            <li><a href="#el-state-element"><code>&lt;state-element&gt;</code></a></li>
+            <li><a href="#el-include-template"><code>&lt;include-template&gt;</code></a></li>
+
+            <li class="nav-group">Data Attributes</li>
+            <li><a href="#attr-data-loop"><code>data-loop</code></a></li>
+            <li><a href="#attr-data-innerhtml"><code>data-innerhtml</code></a></li>
+            <li><a href="#attr-data-js"><code>data-js</code></a></li>
+            <li><a href="#attr-no-parse"><code>no-parse</code></a></li>
+
+            <li class="nav-group">Examples</li>
+            <li><a href="#ex-counter">Counter</a></li>
+            <li><a href="#ex-todo">Todo List</a></li>
+            <li><a href="#ex-table">Data Table</a></li>
+            <li><a href="#ex-conditions">Nested Conditions</a></li>
+            <li><a href="#ex-tabs">Tabs Component</a></li>
+
+            <li class="nav-group">Troubleshooting</li>
+            <li><a href="#pitfalls">Common Pitfalls</a></li>
+            <li><a href="#errors">Error Reference</a></li>
+            <li><a href="#llm-ref">LLM Reference</a></li>
+        </ul>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="docs-main">
+
+        <!-- ═══════════════════════════════════════════
+     GETTING STARTED
+     ═══════════════════════════════════════════ -->
+
+        <section class="doc-section" id="intro">
+            <h1><i class="fa-solid fa-book"></i> HTTL-S Documentation</h1>
+            <p><strong>HTTL-S</strong> (HyperText Templating Language — Simple) is a zero-dependency, no-build-step
+                JavaScript library that brings reactivity to vanilla HTML. Think of it like a lightweight alternative to
+                React or Vue, but without JSX, virtual DOM, or a build pipeline. You write plain HTML with custom
+                elements and template expressions, include one <code>&lt;script&gt;</code> tag, and everything just
+                works.</p>
+
+            <div class="callout callout-info">
+                <p><strong>Who is this for?</strong> Developers who want reactive UI without the complexity of a full
+                    framework. Perfect for landing pages, admin panels, dashboards, prototypes, and small-to-medium web
+                    apps.</p>
+            </div>
+
+            <h3>What HTTL-S gives you</h3>
+            <ul>
+                <li><strong>Reactive global variables</strong> — change a variable, the UI updates automatically</li>
+                <li><strong>For-loops in HTML</strong> — no JavaScript DOM manipulation needed</li>
+                <li><strong>Conditional rendering</strong> — if/else chains right in your markup</li>
+                <li><strong>Template includes</strong> — split HTML into reusable components</li>
+                <li><strong>Data binding</strong> — expressions like <code>{{count}}</code> and
+                    <code>${item.name}</code>
+                </li>
+                <li><strong>No build step</strong> — works with any static server, CDN, or even <code>file://</code>
+                </li>
+            </ul>
+        </section>
+
+        <section class="doc-section" id="installation">
+            <h2>Installation</h2>
+            <p>HTTL-S is a single JavaScript file. You have two options:</p>
+
+            <h4>Option 1: CDN (recommended for getting started)</h4>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;script src="https://cdn.jsdelivr.net/gh/KTBsomen/httl-s@main/statejs.js"&gt;&lt;/script&gt;</code></pre>
+            </div>
+
+            <h4>Option 2: Local copy</h4>
+            <p>Download <code>statejs.js</code> from the <a href="https://github.com/KTBsomen/httl-s" target="_blank"
+                    style="color:var(--accent)">GitHub repo</a> and reference it locally:</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;script src="statejs.js"&gt;&lt;/script&gt;</code></pre>
+            </div>
+
+            <div class="callout callout-tip">
+                <p><strong>Tip:</strong> Place the <code>&lt;script&gt;</code> tag <strong>before</strong> your
+                    application script but <strong>after</strong> your HTML body content, so the DOM is ready when
+                    HTTL-S initializes.</p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="hello-world">
+            <h2>Hello World</h2>
+            <p>Here's the simplest possible HTTL-S app — a counter that increments when you click a button:</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>hello.html</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello HTTL-S!&lt;/h1&gt;
+
+  &lt;!-- This element re-renders whenever "count" changes --&gt;
+  &lt;state-element stateId="counter"&gt;
+    &lt;template stateId="counter"&gt;
+      &lt;p&gt;Count: {{count}}&lt;/p&gt;
+    &lt;/template&gt;
+  &lt;/state-element&gt;
+
+  &lt;button onclick="count++"&gt;Increment&lt;/button&gt;
+
+  &lt;script src="https://cdn.jsdelivr.net/gh/KTBsomen/httl-s@main/statejs.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+    // 1. Create a reactive variable called "count" with initial value 0
+    watch('count', (name, value) =&gt; {
+      // 2. When "count" changes, re-render the state-element with stateId="counter"
+      setState({ stateId: 'counter', showloader: false });
+    }, 0);
+
+    // 3. Initialize all custom elements
+    initState();
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+
+            <h4>How it works, line by line:</h4>
+            <ol>
+                <li><code>watch('count', callback, 0)</code> — creates a global variable <code>count</code> with initial
+                    value <code>0</code>. A deep proxy watches for any changes.</li>
+                <li>When you click the button, <code>count++</code> triggers the proxy's setter, which schedules the
+                    callback.</li>
+                <li>The callback calls <code>setState({ stateId: 'counter' })</code>, which finds the
+                    <code>&lt;state-element stateId="counter"&gt;</code> and re-renders its template.
+                </li>
+                <li>The template contains <code>{{count}}</code>, which <code>parseTemplate()</code> evaluates to the
+                    current value of <code>count</code>.</li>
+                <li><code>initState()</code> registers all custom elements and triggers the first render.</li>
+            </ol>
+        </section>
+
+        <section class="doc-section" id="project-setup">
+            <h2>Project Setup</h2>
+            <p>HTTL-S doesn't need a build tool. Here's a recommended folder structure:</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>Folder Structure</span></div>
+                <pre><code>my-app/
+├── index.html          ← Main page
+├── statejs.js          ← HTTL-S library (local copy)
+├── components/
+│   ├── header.html     ← Reusable header (loaded via include-template)
+│   └── footer.html     ← Reusable footer
+├── scripts/
+│   └── app.js          ← Your application logic
+└── styles/
+    └── style.css       ← Your styles</code></pre>
+            </div>
+
+            <h4>Serving locally</h4>
+            <p>You need a local HTTP server because <code>&lt;include-template&gt;</code> uses <code>fetch()</code>
+                which doesn't work with <code>file://</code> protocol. The simplest option:</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>Terminal</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">npx -y http-server . -p 8080 --cors -c-1</code></pre>
+            </div>
+
+            <h4>VS Code Setup</h4>
+            <p>For the best developer experience with HTTL-S:</p>
+            <ul>
+                <li>Install the <strong>Live Server</strong> extension for auto-reload</li>
+                <li>Copy the <code>.vscode/htmls.code-snippets</code> from the HTTL-S repo for auto-complete snippets
+                </li>
+                <li>Add <code>/// &lt;reference path="statejs.d.ts" /&gt;</code> in your JS files for TypeScript
+                    IntelliSense</li>
+            </ul>
+
+            <div class="callout callout-warn">
+                <p><strong>FOUC prevention:</strong> Custom elements like <code>&lt;for-loop&gt;</code> may briefly show
+                    raw content before they're defined. Add this CSS to your <code>&lt;head&gt;</code> to prevent the
+                    flash:</p>
+            </div>
+            <div class="code-block">
+                <div class="code-block-header"><span>CSS — Anti-FOUC</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;style&gt;
+  for-loop:not(:defined),
+  condition-block:not(:defined),
+  state-element:not(:defined),
+  include-template:not(:defined) {
+    visibility: hidden;
+  }
+&lt;/style&gt;</code></pre>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+     CORE CONCEPTS
+     ═══════════════════════════════════════════ -->
+
+        <section class="doc-section" id="mental-model">
+            <h2>Mental Model</h2>
+            <p>HTTL-S works fundamentally differently from React, Vue, or Angular. Understanding this mental model will
+                save you hours of debugging.</p>
+
+            <h4>The core loop</h4>
+            <p>HTTL-S has an extremely simple architecture:</p>
+            <div class="diagram-box">
+                <span class="box">watch()</span> <span class="arrow">→</span> creates reactive global
+                <span class="arrow">→</span> <span class="box">variable changes</span>
+                <span class="arrow">→</span> <span class="box">callback fires</span>
+                <span class="arrow">→</span> <span class="box">setState()</span>
+                <span class="arrow">→</span> <span class="box">DOM re-renders</span>
+            </div>
+
+            <h4>Key mental model differences from React/Vue</h4>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Concept</th>
+                        <th>React/Vue</th>
+                        <th>HTTL-S</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>State</td>
+                        <td>Component-scoped (<code>useState</code>, <code>ref</code>)</td>
+                        <td>Global variables on <code>window</code></td>
+                    </tr>
+                    <tr>
+                        <td>Re-rendering</td>
+                        <td>Automatic via virtual DOM diff</td>
+                        <td>Manual — you call <code>setState()</code> to re-render</td>
+                    </tr>
+                    <tr>
+                        <td>Template syntax</td>
+                        <td>JSX / <code>v-for</code></td>
+                        <td>Custom HTML elements (<code>&lt;for-loop&gt;</code>)</td>
+                    </tr>
+                    <tr>
+                        <td>Components</td>
+                        <td>Functions/classes</td>
+                        <td>HTML files loaded via <code>&lt;include-template&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td>Build step</td>
+                        <td>Required (webpack, vite)</td>
+                        <td>None — works directly in browser</td>
+                    </tr>
+                    <tr>
+                        <td>Change detection</td>
+                        <td>Virtual DOM diff / signals</td>
+                        <td>ES6 Proxy on watched variables</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Everything is global</h4>
+            <p>When you call <code>watch('count', cb, 0)</code>, HTTL-S creates <code>window.count</code>. This means:
+            </p>
+            <ul>
+                <li>You can access <code>count</code> anywhere — in templates, event handlers, the console</li>
+                <li>You can set <code>count = 5</code> from any script — the proxy intercepts the assignment and fires
+                    the callback</li>
+                <li>You <strong>cannot</strong> have two variables with the same name — calling
+                    <code>watch('count', ...)</code> twice will warn and skip the second one
+                </li>
+            </ul>
+
+            <div class="callout callout-info">
+                <p><strong>Why globals?</strong> HTTL-S is designed for simplicity. Globals let you write
+                    <code>onclick="count++"</code> directly in HTML without any binding boilerplate. For larger apps,
+                    use naming conventions like <code>watch('app_users', ...)</code> to namespace your state.
+                </p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="reactivity">
+            <h2>Reactivity Flow (Deep Dive)</h2>
+            <p>Understanding exactly what happens when you change a watched variable is critical. Here's the complete
+                flow:</p>
+
+            <h4>Step 1: <code>watch()</code> creates a deep proxy</h4>
+            <p>When you call <code>watch('todos', cb, [])</code>:</p>
+            <ol>
+                <li>HTTL-S stores the initial value <code>[]</code></li>
+                <li>If the value is an object or array, it wraps it in a <strong>deep proxy</strong> using
+                    <code>createDeepProxy()</code>
+                </li>
+                <li>It defines a getter/setter on <code>window.todos</code></li>
+                <li>Any access to <code>todos</code> returns the proxied version</li>
+            </ol>
+
+            <h4>Step 2: Mutation triggers the callback</h4>
+            <p>The deep proxy intercepts <strong>any mutation at any depth</strong>:</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">// All of these trigger the callback:
+todos.push({ text: 'Buy milk', done: false });  // array push
+todos[0].done = true;                           // nested property change
+todos = [...todos, newItem];                    // full reassignment
+delete todos[0];                                // deletion</code></pre>
+            </div>
+
+            <h4>Step 3: Batching with microtasks</h4>
+            <p>If you make multiple mutations in the same synchronous block, the callback fires <strong>only
+                    once</strong>:</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">// These three mutations fire the callback ONCE, not three times:
+todos.push('A');
+todos.push('B');
+todos.push('C');
+// → callback fires once after this synchronous block completes</code></pre>
+            </div>
+            <p>This works because HTTL-S uses <code>queueMicrotask()</code> for batching. The callback is scheduled but
+                only executed once the current microtask queue flushes.</p>
+
+            <h4>Step 4: Your callback calls <code>setState()</code></h4>
+            <p>The callback receives <code>(propName, newValue)</code> and is responsible for deciding <strong>what to
+                    re-render</strong>:</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">watch('todos', (name, value) => {
+  // Re-render only loops and conditions, skip loader
+  setState({
+    loops: true,        // re-render all &lt;for-loop&gt; elements
+    conditions: true,   // re-render all &lt;condition-block&gt; elements
+    showloader: false,  // don't show loading spinner
+    dataloops: true,    // re-render data-loop tables
+  });
+}, []);</code></pre>
+            </div>
+
+            <div class="callout callout-danger">
+                <p><strong>Common mistake:</strong> Forgetting to call <code>setState()</code> inside the callback. If
+                    you don't call it, nothing re-renders — the variable changes but the DOM stays stale.</p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="template-expr">
+            <h2>Template Expressions</h2>
+            <p>HTTL-S has two template expression syntaxes, and they serve different purposes:</p>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Syntax</th>
+                        <th>Used In</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>{{expression}}</code></td>
+                        <td><code>&lt;state-element&gt;</code>, <code>&lt;condition-block&gt;</code>,
+                            <code>&lt;include-template&gt;</code>
+                        </td>
+                        <td><code>{{count}}</code>, <code>{{user.name}}</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>${expression}</code></td>
+                        <td><code>&lt;for-loop&gt;</code> templates, <code>data-loop</code> templates</td>
+                        <td><code>${item.name}</code>, <code>${i + 1}</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Why two syntaxes?</h4>
+            <p><code>${expr}</code> in loop templates is processed <strong>before</strong> <code>parseTemplate()</code>
+                runs. The loop engine uses string replacement to substitute loop variables, then
+                <code>parseTemplate()</code> evaluates any remaining <code>{{expr}}</code> for global state access.
+            </p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML — Mixing both syntaxes</span><button
+                        class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;for-loop array="items" valueVar="item" indexVar="i" loopid="myloop"&gt;
+  &lt;template loopid="myloop"&gt;
+    &lt;p&gt;${i}: ${item.name} — Total items: {{items.length}}&lt;/p&gt;
+  &lt;/template&gt;
+&lt;/for-loop&gt;</code></pre>
+            </div>
+            <p>Here, <code>${i}</code> and <code>${item.name}</code> are replaced by the loop engine per iteration.
+                <code>{{items.length}}</code> is evaluated by <code>parseTemplate()</code> against the global state.
+            </p>
+
+            <div class="callout callout-warn">
+                <p><strong>Pitfall:</strong> Using <code>{{expr}}</code> inside a for-loop template for loop variables
+                    won't work. <code>{{item.name}}</code> will fail because <code>item</code> is a loop-scoped
+                    variable, not a global. Use <code>${item.name}</code> instead.</p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="render-lifecycle">
+            <h2>Render Lifecycle</h2>
+            <p>When <code>initState()</code> is called, here's exactly what happens in order:</p>
+            <ol>
+                <li><strong>Register custom elements</strong> — <code>for-loop</code>, <code>condition-block</code>,
+                    <code>if-condition</code>, <code>else-condition</code>, <code>state-element</code>,
+                    <code>include-template</code>
+                </li>
+                <li><strong>Call <code>renderDataLoops()</code></strong> — finds all <code>[data-loop]</code> elements
+                    and renders them</li>
+                <li><strong>Call <code>setState()</code></strong> with defaults — this triggers the initial render of
+                    all for-loops, condition-blocks, data-js, data-innerhtml, and data-loops</li>
+            </ol>
+
+            <div class="callout callout-danger">
+                <p><strong>Critical rule:</strong> All <code>watch()</code> calls must come <strong>before</strong>
+                    <code>initState()</code>. If you call <code>watch()</code> after <code>initState()</code>, the
+                    initial render won't have access to those variables, leading to template evaluation errors.
+                </p>
+            </div>
+
+            <h4><code>setState()</code> default render order</h4>
+            <p>When <code>setState()</code> is called with no arguments (or with defaults), it renders in this order:
+            </p>
+            <ol>
+                <li>Specific elements (if <code>loopid</code>, <code>ifid</code>, or <code>stateId</code> is provided)
+                </li>
+                <li><code>data-js</code> attributes</li>
+                <li><code>data-innerhtml</code> attributes</li>
+                <li>All <code>&lt;for-loop&gt;</code> elements</li>
+                <li>All <code>[data-loop]</code> elements</li>
+                <li>All <code>&lt;condition-block&gt;</code> elements</li>
+                <li>Show/hide the loader</li>
+            </ol>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+     API REFERENCE
+     ═══════════════════════════════════════════ -->
+
+        <section class="doc-section" id="fn-watch">
+            <h2>watch(propName, callback, defaultValue)</h2>
+            <p>Creates a reactive global variable. This is the entry point for all reactivity in HTTL-S. When the
+                variable changes (at any depth), the callback is automatically invoked.</p>
+
+            <div class="fn-signature">
+                <span class="fn-name">watch</span>(<span class="fn-param">propName</span>: <span
+                    class="fn-type">string</span>, <span class="fn-param">callback</span>: <span class="fn-type">(name:
+                    string, value: any) =&gt; void</span>, <span class="fn-param">defaultValue</span>?: <span
+                    class="fn-type">any</span>)
+            </div>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>propName</code> <span class="param-badge badge-required">required</span></td>
+                        <td><code>string</code></td>
+                        <td>Name for the global variable. Creates <code>window[propName]</code>. Must be unique —
+                            calling <code>watch()</code> twice with the same name logs a warning and skips the second
+                            call.</td>
+                    </tr>
+                    <tr>
+                        <td><code>callback</code> <span class="param-badge badge-required">required</span></td>
+                        <td><code>function</code></td>
+                        <td>Called whenever the variable changes. Receives <code>(propName, newValue)</code>. You should
+                            call <code>setState()</code> here to trigger re-renders. Batched via microtask — multiple
+                            synchronous mutations fire the callback once.</td>
+                    </tr>
+                    <tr>
+                        <td><code>defaultValue</code> <span class="param-badge badge-optional">optional</span></td>
+                        <td><code>any</code></td>
+                        <td>Initial value. If it's an object or array, it's wrapped in a deep proxy that detects nested
+                            property changes. Default: <code>undefined</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Deep proxy behavior</h4>
+            <p>When the value is an object or array, HTTL-S creates a recursive ES6 Proxy. This means:</p>
+            <ul>
+                <li><code>myArray.push(item)</code> — triggers callback (proxy intercepts the <code>push</code>
+                    mutation)</li>
+                <li><code>myObj.nested.deep.value = 5</code> — triggers callback (nested property access returns
+                    sub-proxies)</li>
+                <li><code>delete myObj.key</code> — triggers callback (proxy's <code>deleteProperty</code> trap)</li>
+                <li>Full reassignment <code>myVar = newValue</code> — triggers callback (goes through the global setter)
+                </li>
+            </ul>
+
+            <h4>Self-mutation protection</h4>
+            <p>If a watcher callback modifies its own watched variable (directly or indirectly), HTTL-S detects this and
+                prevents infinite loops. The mutation succeeds but doesn't re-trigger the same callback.</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript — Complete example</span><button
+                        class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">// Watch an array of users
+watch('users', (name, value) => {
+  console.log(`${name} changed, now has ${value.length} users`);
+  setState({
+    loops: true,       // re-render for-loops showing users
+    dataloops: true,   // re-render data-loop tables
+    conditions: true,  // re-render condition blocks (e.g. "empty" message)
+    showloader: false  // don't show spinner for quick updates
+  });
+}, [
+  { name: 'Alice', role: 'admin' },
+  { name: 'Bob', role: 'user' }
+]);
+
+// All of these trigger the callback:
+users.push({ name: 'Charlie', role: 'user' });
+users[0].role = 'superadmin';
+users = users.filter(u => u.role !== 'user');</code></pre>
+            </div>
+
+            <div class="callout callout-warn">
+                <p><strong>Pitfall — Duplicate watch names:</strong> If you accidentally call
+                    <code>watch('count', cb1, 0)</code> and <code>watch('count', cb2, 10)</code>, the second call is
+                    silently ignored. The variable keeps the first callback and initial value. Check the console for a
+                    warning message.
+                </p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="fn-setstate">
+            <h2>setState(options)</h2>
+            <p>The central UI update function. Tells HTTL-S which parts of the DOM to re-render. You almost always call
+                this inside a <code>watch()</code> callback.</p>
+
+            <div class="fn-signature">
+                <span class="fn-name">setState</span>({
+                <span class="fn-param">loopid</span>, <span class="fn-param">stateId</span>, <span
+                    class="fn-param">ifid</span>, <span class="fn-param">states</span>,
+                <span class="fn-param">showloader</span>, <span class="fn-param">datajs</span>, <span
+                    class="fn-param">innerhtml</span>,
+                <span class="fn-param">loops</span>, <span class="fn-param">dataloops</span>, <span
+                    class="fn-param">templates</span>, <span class="fn-param">conditions</span>
+                })
+            </div>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>loopid</code></td>
+                        <td><code>string|false</code></td>
+                        <td><code>false</code></td>
+                        <td>Re-render only the <code>&lt;for-loop&gt;</code> with this specific <code>loopid</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>stateId</code></td>
+                        <td><code>string|false</code></td>
+                        <td><code>false</code></td>
+                        <td>Re-render only the <code>&lt;state-element&gt;</code> with this specific
+                            <code>stateId</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>ifid</code></td>
+                        <td><code>string|false</code></td>
+                        <td><code>false</code></td>
+                        <td>Re-render only the <code>&lt;condition-block&gt;</code> with this specific <code>ifid</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>states</code></td>
+                        <td><code>boolean</code></td>
+                        <td><code>false</code></td>
+                        <td>Re-render <strong>all</strong> <code>&lt;state-element&gt;</code> elements</td>
+                    </tr>
+                    <tr>
+                        <td><code>showloader</code></td>
+                        <td><code>boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Show/hide the loading spinner during render</td>
+                    </tr>
+                    <tr>
+                        <td><code>datajs</code></td>
+                        <td><code>boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Execute all <code>[data-js]</code> attribute expressions</td>
+                    </tr>
+                    <tr>
+                        <td><code>innerhtml</code></td>
+                        <td><code>boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Update all <code>[data-innerhtml]</code> elements</td>
+                    </tr>
+                    <tr>
+                        <td><code>loops</code></td>
+                        <td><code>boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Re-render <em>all</em> <code>&lt;for-loop&gt;</code> elements</td>
+                    </tr>
+                    <tr>
+                        <td><code>dataloops</code></td>
+                        <td><code>boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Re-render all <code>[data-loop]</code> table loops</td>
+                    </tr>
+                    <tr>
+                        <td><code>templates</code></td>
+                        <td><code>boolean</code></td>
+                        <td><code>false</code></td>
+                        <td>Re-render all <code>&lt;include-template&gt;</code> elements (re-fetches HTML)</td>
+                    </tr>
+                    <tr>
+                        <td><code>conditions</code></td>
+                        <td><code>boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Re-render all <code>&lt;condition-block&gt;</code> elements</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout callout-danger">
+                <p><strong>Performance tip:</strong> Avoid calling <code>setState()</code> with all defaults when only
+                    one thing changed. Use targeted options like
+                    <code>setState({ stateId: 'counter', showloader: false })</code> for better performance. The
+                    defaults re-render <strong>everything</strong>, which is expensive on complex pages.
+                </p>
+            </div>
+
+            <div class="callout callout-warn">
+                <p><strong>Pitfall — <code>showloader: true</code> is the default.</strong> If you call
+                    <code>setState({ loops: true })</code> without <code>showloader: false</code>, a full-screen loading
+                    spinner appears briefly. Always add <code>showloader: false</code> for instantaneous updates.
+                </p>
+            </div>
+
+            <h4>Targeted vs. broadcast rendering</h4>
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript — Targeted rendering</span><button
+                        class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">// ✅ GOOD — Only re-render the specific counter element
+setState({ stateId: 'counter', showloader: false });
+
+// ✅ GOOD — Only re-render one specific loop
+setState({ loopid: 'userList', showloader: false });
+
+// ⚠️ OK — Re-render all loops and conditions (broad)
+setState({ loops: true, conditions: true, showloader: false });
+
+// ❌ BAD — Re-renders everything with spinner flash
+setState();</code></pre>
+            </div>
+        </section>
+
+        <section class="doc-section" id="fn-initstate">
+            <h2>initState()</h2>
+            <p>Registers all HTTL-S custom elements with the browser and triggers the initial render. <strong>Call this
+                    exactly once</strong>, after all <code>watch()</code> declarations.</p>
+
+            <div class="fn-signature">
+                <span class="fn-name">initState</span>() : <span class="fn-type">void</span>
+            </div>
+
+            <h4>What it does internally:</h4>
+            <ol>
+                <li>Registers 6 custom elements: <code>for-loop</code>, <code>include-template</code>,
+                    <code>if-condition</code>, <code>else-condition</code>, <code>condition-block</code>,
+                    <code>state-element</code>
+                </li>
+                <li>Calls <code>renderDataLoops()</code> to render all <code>[data-loop]</code> elements</li>
+                <li>Calls <code>setState()</code> with defaults to trigger the first full render</li>
+            </ol>
+
+            <div class="callout callout-danger">
+                <p><strong>Order matters!</strong> Always follow this pattern:</p>
+            </div>
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript — Correct order</span><button
+                        class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">// 1. First: declare ALL watched variables
+watch('count', cb1, 0);
+watch('items', cb2, []);
+watch('user', cb3, { name: 'Guest' });
+
+// 2. Last: initialize (registers elements + first render)
+initState();</code></pre>
+            </div>
+        </section>
+
+        <section class="doc-section" id="fn-parsetemplate">
+            <h2>parseTemplate(template)</h2>
+            <p>Evaluates <code>{{expression}}</code> placeholders in a string, replacing them with the result of the
+                JavaScript expression. This is the engine behind all template rendering in HTTL-S.</p>
+
+            <div class="fn-signature">
+                <span class="fn-name">parseTemplate</span>(<span class="fn-param">template</span>: <span
+                    class="fn-type">string</span>) : <span class="fn-type">string</span>
+            </div>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>template</code> <span class="param-badge badge-required">required</span></td>
+                        <td><code>string</code></td>
+                        <td>String containing <code>{{expression}}</code> placeholders to evaluate</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>How expressions are evaluated</h4>
+            <p>Inside <code>{{ }}</code>, you can use any valid JavaScript expression:</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">parseTemplate('Hello {{name}}!')         // → "Hello Alice!"
+parseTemplate('{{2 + 3}}')                // → "5"
+parseTemplate('{{arr.length}} items')     // → "3 items"
+parseTemplate('{{flag ? "Yes" : "No"}}')  // → "Yes" or "No"</code></pre>
+            </div>
+
+            <h4>The <code>no-parse</code> attribute</h4>
+            <p>If your data <em>contains</em> literal <code>{{ }}</code> syntax (like documentation strings), use the
+                <code>no-parse</code> attribute on the parent element to prevent evaluation:
+            </p>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;!-- WITHOUT no-parse: tries to evaluate "expression" → error --&gt;
+&lt;td&gt;${api.desc}&lt;/td&gt;
+
+&lt;!-- WITH no-parse: {{expression}} renders as literal text --&gt;
+&lt;td no-parse&gt;${api.desc}&lt;/td&gt;</code></pre>
+            </div>
+        </section>
+
+        <section class="doc-section" id="fn-unsafeeval">
+            <h2>unsafeEval(expression, context)</h2>
+            <p>Evaluates a JavaScript expression string with optional context variables. Used internally by
+                <code>parseTemplate()</code>, but also available for direct use.
+            </p>
+
+            <div class="fn-signature">
+                <span class="fn-name">unsafeEval</span>(<span class="fn-param">expression</span>: <span
+                    class="fn-type">string</span>, <span class="fn-param">context</span>?: <span
+                    class="fn-type">object</span>) : <span class="fn-type">any</span>
+            </div>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>expression</code> <span class="param-badge badge-required">required</span></td>
+                        <td><code>string</code></td>
+                        <td>JavaScript expression to evaluate</td>
+                    </tr>
+                    <tr>
+                        <td><code>context</code> <span class="param-badge badge-optional">optional</span></td>
+                        <td><code>object</code></td>
+                        <td>Key-value pairs made available as local variables during evaluation. Default:
+                            <code>{}</code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">unsafeEval('a + b', { a: 1, b: 2 })  // → 3
+unsafeEval('name.toUpperCase()', { name: 'alice' })  // → "ALICE"
+unsafeEval('count * 2')  // uses global `count` variable</code></pre>
+            </div>
+
+            <div class="callout callout-danger">
+                <p><strong>Security note:</strong> This function uses <code>new Function()</code> internally. Never pass
+                    user-supplied strings to <code>unsafeEval()</code> in production. It's designed for template
+                    expressions defined by the developer, not for end-user input.</p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="fn-createrange">
+            <h2>createRangeArray(start, end, step)</h2>
+            <p>Creates an array of sequential numbers. Useful for numeric for-loops.</p>
+
+            <div class="fn-signature">
+                <span class="fn-name">createRangeArray</span>(<span class="fn-param">start</span>: <span
+                    class="fn-type">number</span>, <span class="fn-param">end</span>: <span
+                    class="fn-type">number</span>, <span class="fn-param">step</span>?: <span
+                    class="fn-type">number</span>) : <span class="fn-type">number[]</span>
+            </div>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">createRangeArray(1, 5)      // → [1, 2, 3, 4, 5]
+createRangeArray(0, 10, 2)  // → [0, 2, 4, 6, 8, 10]
+createRangeArray(5, 1, -1)  // → [5, 4, 3, 2, 1]</code></pre>
+            </div>
+        </section>
+
+        <section class="doc-section" id="fn-renderdataloops">
+            <h2>renderDataLoops()</h2>
+            <p>Manually triggers rendering of all <code>[data-loop]</code> elements. Called automatically by
+                <code>initState()</code> and <code>setState({ dataloops: true })</code>.
+            </p>
+
+            <div class="fn-signature">
+                <span class="fn-name">renderDataLoops</span>() : <span class="fn-type">void</span>
+            </div>
+
+            <p>How <code>data-loop</code> works internally:</p>
+            <ol>
+                <li>Finds all elements with <code>[data-loop]</code> attribute</li>
+                <li>Gets the array from the global variable named in <code>data-loop</code></li>
+                <li>Gets the template from the selector in <code>data-template</code></li>
+                <li>For each item, replaces <code>${valueVar}</code> and <code>${indexVar}</code> in the template</li>
+                <li>Runs <code>parseTemplate()</code> on the result for <code>{{expr}}</code> evaluation</li>
+                <li>Sets the element's <code>innerHTML</code> to the combined output</li>
+            </ol>
+        </section>
+
+        <section class="doc-section" id="fn-parseurl">
+            <h2>parseURL(url, global)</h2>
+            <p>Parses a URL and extracts its components. By default, parses the current page URL and stores the result
+                in <code>window.UrlDetails</code>.</p>
+
+            <div class="fn-signature">
+                <span class="fn-name">parseURL</span>(<span class="fn-param">url</span>?: <span
+                    class="fn-type">string</span>, <span class="fn-param">global</span>?: <span
+                    class="fn-type">boolean</span>) : <span class="fn-type">URLDetails</span>
+            </div>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>url</code></td>
+                        <td><code>string</code></td>
+                        <td><code>location.href</code></td>
+                        <td>URL to parse</td>
+                    </tr>
+                    <tr>
+                        <td><code>global</code></td>
+                        <td><code>boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>If true, stores result in <code>window.UrlDetails</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Return value</h4>
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">// For URL: https://example.com/page?name=Alice&count=5#section
+parseURL()
+// → {
+//   protocol: "https:",
+//   hostname: "example.com",
+//   pathname: "/page",
+//   hash: "#section",
+//   params: { name: "Alice", count: 5 }  // auto-parsed JSON
+// }</code></pre>
+            </div>
+
+            <p><strong>Auto-parsed params:</strong> Query parameter values are automatically parsed with
+                <code>JSON.parse()</code>. So <code>?count=5</code> gives <code>params.count === 5</code> (number, not
+                string), and <code>?active=true</code> gives <code>params.active === true</code> (boolean).
+            </p>
+        </section>
+
+        <section class="doc-section" id="fn-loader">
+            <h2>loader.show() / loader.hide()</h2>
+            <p>A built-in full-screen loading spinner overlay. Used automatically by <code>setState()</code> when
+                <code>showloader: true</code> (the default).
+            </p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">loader.show();              // show default spinner
+loader.show('&lt;p&gt;Loading...&lt;/p&gt;');  // show custom HTML
+loader.hide();              // remove spinner</code></pre>
+            </div>
+        </section>
+
+        <section class="doc-section" id="fn-helpers">
+            <h2>Helper Functions</h2>
+
+            <h4>getType(input)</h4>
+            <p>Returns the type of a value. Unlike <code>typeof</code>, correctly identifies arrays and null.</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">getType([1, 2, 3])   // → "array" (typeof would say "object")
+getType(null)        // → "null"  (typeof would say "object")
+getType("hello")    // → "string"
+getType(42)          // → "number"</code></pre>
+            </div>
+
+            <h4>passValue(value)</h4>
+            <p>URI-encodes any value for safe URL parameter passing. Objects and arrays are JSON-stringified first.</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="js">passValue('hello')           // → "hello"
+passValue({ a: 1, b: 2 })  // → "%7B%22a%22%3A1%2C%22b%22%3A2%7D"
+passValue([1, 2, 3])        // → "%5B1%2C2%2C3%5D"</code></pre>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+     CUSTOM ELEMENTS
+     ═══════════════════════════════════════════ -->
+
+        <section class="doc-section" id="el-for-loop">
+            <h2>&lt;for-loop&gt;</h2>
+            <p>Renders a block of HTML once for each item in an array. Similar to <code>v-for</code> in Vue or
+                <code>.map()</code> in React, but declared directly in HTML.</p>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>array</code> <span class="param-badge badge-required">required</span></td>
+                        <td><code>string</code></td>
+                        <td>—</td>
+                        <td>Name of the global array variable to iterate over. Can be an expression like
+                            <code>"users.filter(u => u.active)"</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>loopid</code> <span class="param-badge badge-required">required</span></td>
+                        <td><code>string</code></td>
+                        <td>—</td>
+                        <td>Unique identifier for this loop. The inner <code>&lt;template&gt;</code> must have a
+                            matching <code>loopid</code> attribute.</td>
+                    </tr>
+                    <tr>
+                        <td><code>valueVar</code> <span class="param-badge badge-optional">optional</span></td>
+                        <td><code>string</code></td>
+                        <td><code>"value"</code></td>
+                        <td>Name of the variable representing the current item in each iteration.</td>
+                    </tr>
+                    <tr>
+                        <td><code>indexVar</code> <span class="param-badge badge-optional">optional</span></td>
+                        <td><code>string</code></td>
+                        <td><code>"index"</code></td>
+                        <td>Name of the variable representing the current index (0-based).</td>
+                    </tr>
+                    <tr>
+                        <td><code>start</code> <span class="param-badge badge-optional">optional</span></td>
+                        <td><code>number</code></td>
+                        <td>—</td>
+                        <td>For numeric loops: start value (used with <code>end</code> instead of <code>array</code>)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>end</code> <span class="param-badge badge-optional">optional</span></td>
+                        <td><code>number</code></td>
+                        <td>—</td>
+                        <td>For numeric loops: end value (inclusive)</td>
+                    </tr>
+                    <tr>
+                        <td><code>step</code> <span class="param-badge badge-optional">optional</span></td>
+                        <td><code>number</code></td>
+                        <td><code>1</code></td>
+                        <td>For numeric loops: step increment</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Array loop example</h4>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;for-loop array="users" valueVar="user" indexVar="i" loopid="userList"&gt;
+  &lt;template loopid="userList"&gt;
+    &lt;div class="user-card"&gt;
+      &lt;h3&gt;${i + 1}. ${user.name}&lt;/h3&gt;
+      &lt;p&gt;Role: ${user.role}&lt;/p&gt;
+      &lt;button onclick="removeUser(${i})"&gt;Delete&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/template&gt;
+&lt;/for-loop&gt;</code></pre>
+            </div>
+
+            <h4>Numeric range loop</h4>
+            <p>Instead of an array, you can loop over a range of numbers:</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;!-- Renders pages 1 through 10 --&gt;
+&lt;for-loop start="1" end="10" valueVar="page" loopid="pagination"&gt;
+  &lt;template loopid="pagination"&gt;
+    &lt;button onclick="goToPage(${page})"&gt;${page}&lt;/button&gt;
+  &lt;/template&gt;
+&lt;/for-loop&gt;</code></pre>
+            </div>
+
+            <h4>Nested for-loops</h4>
+            <p>Each nested loop must have a unique <code>loopid</code>:</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;for-loop array="categories" valueVar="cat" loopid="catLoop"&gt;
+  &lt;template loopid="catLoop"&gt;
+    &lt;h2&gt;${cat.name}&lt;/h2&gt;
+    &lt;for-loop array="cat.items" valueVar="item" loopid="itemLoop_${cat.id}"&gt;
+      &lt;template loopid="itemLoop_${cat.id}"&gt;
+        &lt;p&gt;${item.name} - $${item.price}&lt;/p&gt;
+      &lt;/template&gt;
+    &lt;/for-loop&gt;
+  &lt;/template&gt;
+&lt;/for-loop&gt;</code></pre>
+            </div>
+
+            <div class="callout callout-danger">
+                <p><strong>Critical pitfall — Tables:</strong> The HTML parser strips custom elements from inside
+                    <code>&lt;table&gt;</code>, <code>&lt;thead&gt;</code>, <code>&lt;tbody&gt;</code>. You
+                    <strong>cannot</strong> use <code>&lt;for-loop&gt;</code> inside a table. Use <code>data-loop</code>
+                    instead (see <a href="#attr-data-loop" style="color:var(--accent)">data-loop section</a>).</p>
+            </div>
+
+            <div class="callout callout-warn">
+                <p><strong>Template must use <code>${}</code>, not <code>{{}}</code>.</strong> Inside a for-loop
+                    template, loop variables like <code>item</code> and <code>i</code> are only available via
+                    <code>${}</code> syntax. Use <code>{{}}</code> only for global state.</p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="el-condition-block">
+            <h2>&lt;condition-block&gt;</h2>
+            <p>Conditional rendering — shows or hides content based on JavaScript expressions. Works like
+                if/else-if/else chains.</p>
+
+            <h4>Structure overview</h4>
+            <p>A condition-block contains <code>&lt;if-condition&gt;</code> and optionally
+                <code>&lt;else-condition&gt;</code> elements:</p>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML — Structure</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;condition-block ifid="myCondition"&gt;
+  &lt;if-condition value="expression" elseid="fallback"&gt;
+    &lt;!-- shown when expression is truthy --&gt;
+  &lt;/if-condition&gt;
+  &lt;else-condition elseid="fallback"&gt;
+    &lt;!-- shown when expression is falsy --&gt;
+  &lt;/else-condition&gt;
+&lt;/condition-block&gt;</code></pre>
+            </div>
+
+            <h4>condition-block attributes</h4>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ifid</code></td>
+                        <td>Yes</td>
+                        <td>Unique identifier for targeted re-rendering via <code>setState({ ifid: 'myId' })</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>if-condition attributes</h4>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>value</code></td>
+                        <td>JavaScript expression to evaluate. If no comparison operator is used, treats the result as a
+                            boolean.</td>
+                    </tr>
+                    <tr>
+                        <td><code>eq</code></td>
+                        <td>Strict equality: shows content if <code>value === eq</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>neq</code></td>
+                        <td>Strict inequality: shows content if <code>value !== neq</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>gt</code></td>
+                        <td>Greater than: shows content if <code>value &gt; gt</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>lt</code></td>
+                        <td>Less than: shows content if <code>value &lt; lt</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>gte</code></td>
+                        <td>Greater or equal: shows content if <code>value &gt;= gte</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>lte</code></td>
+                        <td>Less or equal: shows content if <code>value &lt;= lte</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>elseid</code></td>
+                        <td>Links this if-condition to a matching <code>&lt;else-condition&gt;</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Boolean condition (simplest)</h4>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;condition-block ifid="auth"&gt;
+  &lt;if-condition value="isLoggedIn" elseid="loginElse"&gt;
+    &lt;p&gt;Welcome back, {{username}}!&lt;/p&gt;
+  &lt;/if-condition&gt;
+  &lt;else-condition elseid="loginElse"&gt;
+    &lt;p&gt;Please &lt;a href="/login"&gt;log in&lt;/a&gt;.&lt;/p&gt;
+  &lt;/else-condition&gt;
+&lt;/condition-block&gt;</code></pre>
+            </div>
+
+            <h4>Comparison operators</h4>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML — All operators</span><button class="copy-btn">Copy</button>
+                </div>
+                <pre><code data-lang="html">&lt;!-- Equality --&gt;
+&lt;if-condition value="status" eq="'active'"&gt;Active!&lt;/if-condition&gt;
+
+&lt;!-- Inequality --&gt;
+&lt;if-condition value="role" neq="'admin'"&gt;Not an admin&lt;/if-condition&gt;
+
+&lt;!-- Numeric comparisons --&gt;
+&lt;if-condition value="score" gt="80"&gt;Excellent!&lt;/if-condition&gt;
+&lt;if-condition value="score" gte="50"&gt;Passing&lt;/if-condition&gt;
+&lt;if-condition value="count" lt="0"&gt;Negative!&lt;/if-condition&gt;
+&lt;if-condition value="age" lte="17"&gt;Minor&lt;/if-condition&gt;</code></pre>
+            </div>
+
+            <h4>Chained conditions (if/else-if/else)</h4>
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;condition-block ifid="grade"&gt;
+  &lt;if-condition value="score" gte="90" elseid="gradeB"&gt;
+    &lt;p&gt;Grade: A&lt;/p&gt;
+  &lt;/if-condition&gt;
+  &lt;else-condition elseid="gradeB"&gt;
+    &lt;condition-block ifid="gradeB-inner"&gt;
+      &lt;if-condition value="score" gte="80" elseid="gradeC"&gt;
+        &lt;p&gt;Grade: B&lt;/p&gt;
+      &lt;/if-condition&gt;
+      &lt;else-condition elseid="gradeC"&gt;
+        &lt;p&gt;Grade: C or below&lt;/p&gt;
+      &lt;/else-condition&gt;
+    &lt;/condition-block&gt;
+  &lt;/else-condition&gt;
+&lt;/condition-block&gt;</code></pre>
+            </div>
+
+            <div class="callout callout-info">
+                <p><strong>How it renders:</strong> The condition-block evaluates each
+                    <code>&lt;if-condition&gt;</code>. If its expression is truthy, that block's content is shown and
+                    the matching <code>&lt;else-condition&gt;</code> is hidden. If falsy, the if-condition is hidden and
+                    the else-condition is displayed. Content inside these elements is run through
+                    <code>parseTemplate()</code> for <code>{{}}</code> expression evaluation.</p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="el-state-element">
+            <h2>&lt;state-element&gt;</h2>
+            <p>A re-renderable block of HTML tied to a specific state ID. Unlike condition-block (which shows/hides),
+                state-element <strong>completely re-renders</strong> its template on each update.</p>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>stateId</code></td>
+                        <td>Yes</td>
+                        <td>Unique identifier. The inner <code>&lt;template&gt;</code> must have a matching
+                            <code>stateId</code>. Re-render via <code>setState({ stateId: 'myId' })</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;state-element stateId="profile"&gt;
+  &lt;template stateId="profile"&gt;
+    &lt;div class="profile-card"&gt;
+      &lt;h2&gt;{{user.name}}&lt;/h2&gt;
+      &lt;p&gt;Email: {{user.email}}&lt;/p&gt;
+      &lt;p&gt;Posts: {{user.posts.length}}&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/template&gt;
+&lt;/state-element&gt;
+
+&lt;script&gt;
+  watch('user', () => {
+    setState({ stateId: 'profile', showloader: false });
+  }, { name: 'Alice', email: 'alice@example.com', posts: [] });
+&lt;/script&gt;</code></pre>
+            </div>
+
+            <h4>When to use state-element vs condition-block</h4>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Use Case</th>
+                        <th>Best Choice</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Show/hide based on condition</td>
+                        <td><code>&lt;condition-block&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td>Display dynamic data that updates</td>
+                        <td><code>&lt;state-element&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td>If/else rendering</td>
+                        <td><code>&lt;condition-block&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td>Re-render a section with fresh data</td>
+                        <td><code>&lt;state-element&gt;</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="doc-section" id="el-include-template">
+            <h2>&lt;include-template&gt;</h2>
+            <p>Loads an external HTML file and injects its content into the page. Acts as a simple component system —
+                like PHP includes but client-side.</p>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Required</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>file</code></td>
+                        <td>Yes</td>
+                        <td>—</td>
+                        <td>Path to the HTML file to load (relative or absolute URL)</td>
+                    </tr>
+                    <tr>
+                        <td><code>scoped</code></td>
+                        <td>No</td>
+                        <td><code>"true"</code></td>
+                        <td>If <code>"true"</code>, the included HTML is placed inside a Shadow DOM for style isolation.
+                            Set to <code>"false"</code> for no isolation.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML — index.html</span><button class="copy-btn">Copy</button>
+                </div>
+                <pre><code data-lang="html">&lt;!-- Load the navigation bar from an external file --&gt;
+&lt;include-template file="components/nav.html" scoped="false"&gt;&lt;/include-template&gt;
+
+&lt;main&gt;
+  &lt;h1&gt;My App&lt;/h1&gt;
+&lt;/main&gt;
+
+&lt;!-- Load footer with style isolation (Shadow DOM) --&gt;
+&lt;include-template file="components/footer.html"&gt;&lt;/include-template&gt;</code></pre>
+            </div>
+
+            <h4>Scoped vs. unscoped</h4>
+            <ul>
+                <li><strong><code>scoped="true"</code></strong> (default) — content is placed in a Shadow DOM. Styles
+                    from the main page don't affect the included content, and vice versa.</li>
+                <li><strong><code>scoped="false"</code></strong> — content is injected directly into the page. Shares
+                    all styles. Use this for navbars, headers, and other components that need access to page styles.
+                </li>
+            </ul>
+
+            <div class="callout callout-warn">
+                <p><strong>Requires HTTP server:</strong> <code>&lt;include-template&gt;</code> uses
+                    <code>fetch()</code> internally. It won't work with <code>file://</code> protocol. You must serve
+                    your files via an HTTP server.</p>
+            </div>
+
+            <div class="callout callout-info">
+                <p><strong>Template expressions in included files:</strong> The included HTML is processed through
+                    <code>parseTemplate()</code>, so you can use <code>{{expression}}</code> inside the included file
+                    and they'll be evaluated against the global state.</p>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+     DATA ATTRIBUTES
+     ═══════════════════════════════════════════ -->
+
+        <section class="doc-section" id="attr-data-loop">
+            <h2>data-loop Attribute</h2>
+            <p><strong>Why it exists:</strong> The HTML parser strips unknown elements (like
+                <code>&lt;for-loop&gt;</code>) from inside <code>&lt;table&gt;</code>. The <code>data-loop</code>
+                attribute is the solution for rendering table rows from arrays.</p>
+
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>data-loop="arrayName"</code></td>
+                        <td>Name of the global array variable to iterate over</td>
+                    </tr>
+                    <tr>
+                        <td><code>data-template="#selectorId"</code></td>
+                        <td>CSS selector for the <code>&lt;template&gt;</code> element containing the row template</td>
+                    </tr>
+                    <tr>
+                        <td><code>data-value="varName"</code></td>
+                        <td>Name for the current item variable (default: <code>"value"</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><code>data-index="varName"</code></td>
+                        <td>Name for the current index variable (default: <code>"index"</code>)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML — Table with data-loop</span><button
+                        class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;&lt;th&gt;#&lt;/th&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Price&lt;/th&gt;&lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody data-loop="products"
+         data-template="#productRow"
+         data-value="product"
+         data-index="idx"&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;!-- Template MUST be OUTSIDE the table --&gt;
+&lt;template id="productRow"&gt;
+  &lt;tr&gt;
+    &lt;td&gt;${idx + 1}&lt;/td&gt;
+    &lt;td&gt;${product.name}&lt;/td&gt;
+    &lt;td&gt;$${product.price.toFixed(2)}&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+
+            <div class="callout callout-danger">
+                <p><strong>Template placement:</strong> The <code>&lt;template&gt;</code> element <strong>must be
+                        outside</strong> the <code>&lt;table&gt;</code> tags. If placed inside, the HTML parser may
+                    strip or corrupt it.</p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="attr-data-innerhtml">
+            <h2>data-innerhtml Attribute</h2>
+            <p>Sets an element's text content to the result of a JavaScript expression. Evaluated on every
+                <code>setState()</code> call where <code>innerhtml: true</code> (the default).</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;!-- Display a computed value --&gt;
+&lt;span data-innerhtml="users.length"&gt;0&lt;/span&gt; users
+
+&lt;!-- Complex expression --&gt;
+&lt;p data-innerhtml="products.reduce((sum, p) => sum + p.price, 0).toFixed(2)"&gt;0&lt;/p&gt;
+
+&lt;!-- Conditional text --&gt;
+&lt;span data-innerhtml="items.length > 0 ? 'Has items' : 'Empty'"&gt;&lt;/span&gt;</code></pre>
+            </div>
+
+            <div class="callout callout-info">
+                <p><strong>Security:</strong> Output is HTML-escaped (replaces <code>&lt;</code> and <code>&gt;</code>)
+                    so you cannot inject HTML through this attribute. This is intentional for XSS protection. If you
+                    need raw HTML, use <code>data-js</code> instead.</p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="attr-data-js">
+            <h2>data-js Attribute</h2>
+            <p>Executes JavaScript code on each <code>setState()</code> call where <code>datajs: true</code> (the
+                default). The keyword <code>this</code> inside the expression refers to the DOM element.</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;!-- Toggle class based on state --&gt;
+&lt;div data-js="this.classList.toggle('active', isMenuOpen)"&gt;Menu&lt;/div&gt;
+
+&lt;!-- Set inline styles --&gt;
+&lt;div data-js="this.style.width = progress + '%'"&gt;&lt;/div&gt;
+
+&lt;!-- Update attributes --&gt;
+&lt;input data-js="this.disabled = isLoading"&gt;
+
+&lt;!-- Set raw innerHTML (not escaped) --&gt;
+&lt;div data-js="this.innerHTML = markdownToHtml(content)"&gt;&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="callout callout-warn">
+                <p><strong>Pitfall:</strong> <code>data-js</code> runs on <strong>every</strong> <code>setState()</code>
+                    call. If your expression is expensive (e.g., making API calls), use targeted <code>setState()</code>
+                    with <code>datajs: false</code> to skip data-js evaluation when it's not needed.</p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="attr-no-parse">
+            <h2>no-parse Attribute</h2>
+            <p>Prevents <code>parseTemplate()</code> from evaluating <code>{{expression}}</code> syntax inside this
+                element. Content is treated as literal text.</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>HTML</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;!-- Without no-parse: HTTL-S tries to evaluate "myVar" → error --&gt;
+&lt;code&gt;Use {{myVar}} to display state&lt;/code&gt;
+
+&lt;!-- With no-parse: displays literally as "{{myVar}}" --&gt;
+&lt;code no-parse&gt;Use {{myVar}} to display state&lt;/code&gt;</code></pre>
+            </div>
+
+            <p><strong>When to use:</strong> Documentation pages, code snippets, or any content that contains literal
+                <code>{{ }}</code> syntax that shouldn't be evaluated.</p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+     EXAMPLES
+     ═══════════════════════════════════════════ -->
+
+        <section class="doc-section" id="ex-counter">
+            <h2>Example: Counter</h2>
+            <p>The simplest reactive app — demonstrates <code>watch()</code>, <code>setState()</code>, and
+                <code>&lt;state-element&gt;</code>.</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>counter.html</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;state-element stateId="counter"&gt;
+  &lt;template stateId="counter"&gt;
+    &lt;h1&gt;{{count}}&lt;/h1&gt;
+  &lt;/template&gt;
+&lt;/state-element&gt;
+&lt;button onclick="count--"&gt;-&lt;/button&gt;
+&lt;button onclick="count = 0"&gt;Reset&lt;/button&gt;
+&lt;button onclick="count++"&gt;+&lt;/button&gt;
+
+&lt;script src="statejs.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  watch('count', () =&gt; {
+    setState({ stateId: 'counter', showloader: false });
+  }, 0);
+  initState();
+&lt;/script&gt;</code></pre>
+            </div>
+        </section>
+
+        <section class="doc-section" id="ex-todo">
+            <h2>Example: Todo List</h2>
+            <p>Demonstrates array reactivity, <code>&lt;for-loop&gt;</code>, <code>&lt;condition-block&gt;</code> for
+                empty state, and event handling.</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>todo.html</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;input type="text" id="todoInput" placeholder="Add a task..."&gt;
+&lt;button onclick="addTodo()"&gt;Add&lt;/button&gt;
+
+&lt;!-- Show "no items" message when empty --&gt;
+&lt;condition-block ifid="emptyCheck"&gt;
+  &lt;if-condition value="todos.length" eq="0"&gt;
+    &lt;p&gt;No tasks yet. Add one above!&lt;/p&gt;
+  &lt;/if-condition&gt;
+&lt;/condition-block&gt;
+
+&lt;!-- List of todos --&gt;
+&lt;for-loop array="todos" valueVar="todo" indexVar="i" loopid="todoList"&gt;
+  &lt;template loopid="todoList"&gt;
+    &lt;div style="display:flex; gap:10px; align-items:center"&gt;
+      &lt;input type="checkbox" onclick="toggleTodo(${i})"
+             ${todo.done ? 'checked' : ''}&gt;
+      &lt;span style="${todo.done ? 'text-decoration:line-through' : ''}"&gt;
+        ${todo.text}
+      &lt;/span&gt;
+      &lt;button onclick="removeTodo(${i})"&gt;✕&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/template&gt;
+&lt;/for-loop&gt;
+
+&lt;script src="statejs.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  watch('todos', () =&gt; {
+    setState({ loops: true, conditions: true, showloader: false });
+  }, []);
+
+  function addTodo() {
+    const input = document.getElementById('todoInput');
+    if (input.value.trim()) {
+      todos.push({ text: input.value.trim(), done: false });
+      input.value = '';
+    }
+  }
+
+  function toggleTodo(i) { todos[i].done = !todos[i].done; }
+  function removeTodo(i) { todos = todos.filter((_, idx) =&gt; idx !== i); }
+
+  initState();
+&lt;/script&gt;</code></pre>
+            </div>
+        </section>
+
+        <section class="doc-section" id="ex-table">
+            <h2>Example: Data Table</h2>
+            <p>Shows how to use <code>data-loop</code> for rendering table rows — the correct approach for tables.</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>table.html</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;table&gt;
+  &lt;thead&gt;&lt;tr&gt;&lt;th&gt;#&lt;/th&gt;&lt;th&gt;Product&lt;/th&gt;&lt;th&gt;Price&lt;/th&gt;&lt;th&gt;Stock&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+  &lt;tbody data-loop="products" data-template="#rowTpl"
+         data-value="p" data-index="i"&gt;&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;template id="rowTpl"&gt;
+  &lt;tr&gt;
+    &lt;td&gt;${i + 1}&lt;/td&gt;
+    &lt;td&gt;${p.name}&lt;/td&gt;
+    &lt;td&gt;$${p.price.toFixed(2)}&lt;/td&gt;
+    &lt;td&gt;${p.stock}&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/template&gt;
+
+&lt;p&gt;Total: &lt;span data-innerhtml="products.length"&gt;0&lt;/span&gt; products&lt;/p&gt;
+
+&lt;script src="statejs.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  watch('products', () =&gt; {
+    setState({ dataloops: true, innerhtml: true, showloader: false });
+  }, [
+    { name: 'Laptop', price: 999.99, stock: 15 },
+    { name: 'Mouse', price: 29.99, stock: 100 },
+  ]);
+  initState();
+&lt;/script&gt;</code></pre>
+            </div>
+        </section>
+
+        <section class="doc-section" id="ex-conditions">
+            <h2>Example: Nested Conditions</h2>
+            <p>Demonstrates nested if/else chains for multi-state UI.</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>conditions.html</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;button onclick="userRole = 'admin'"&gt;Admin&lt;/button&gt;
+&lt;button onclick="userRole = 'editor'"&gt;Editor&lt;/button&gt;
+&lt;button onclick="userRole = 'viewer'"&gt;Viewer&lt;/button&gt;
+
+&lt;condition-block ifid="roleCheck"&gt;
+  &lt;if-condition value="userRole" eq="'admin'" elseid="notAdmin"&gt;
+    &lt;p style="color:red"&gt;⚡ Admin Panel — Full Access&lt;/p&gt;
+  &lt;/if-condition&gt;
+  &lt;else-condition elseid="notAdmin"&gt;
+    &lt;condition-block ifid="editorCheck"&gt;
+      &lt;if-condition value="userRole" eq="'editor'" elseid="notEditor"&gt;
+        &lt;p style="color:blue"&gt;✏️ Editor Mode — Can edit content&lt;/p&gt;
+      &lt;/if-condition&gt;
+      &lt;else-condition elseid="notEditor"&gt;
+        &lt;p style="color:gray"&gt;👁️ View Only&lt;/p&gt;
+      &lt;/else-condition&gt;
+    &lt;/condition-block&gt;
+  &lt;/else-condition&gt;
+&lt;/condition-block&gt;
+
+&lt;script src="statejs.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  watch('userRole', () =&gt; {
+    setState({ conditions: true, showloader: false });
+  }, 'viewer');
+  initState();
+&lt;/script&gt;</code></pre>
+            </div>
+        </section>
+
+        <section class="doc-section" id="ex-tabs">
+            <h2>Example: Tabs Component</h2>
+            <p>Uses condition-block for tab switching with a state-element for the active indicator.</p>
+
+            <div class="code-block">
+                <div class="code-block-header"><span>tabs.html</span><button class="copy-btn">Copy</button></div>
+                <pre><code data-lang="html">&lt;div class="tabs"&gt;
+  &lt;button onclick="activeTab = 'home'"
+    data-js="this.classList.toggle('active', activeTab === 'home')"&gt;Home&lt;/button&gt;
+  &lt;button onclick="activeTab = 'about'"
+    data-js="this.classList.toggle('active', activeTab === 'about')"&gt;About&lt;/button&gt;
+  &lt;button onclick="activeTab = 'contact'"
+    data-js="this.classList.toggle('active', activeTab === 'contact')"&gt;Contact&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;condition-block ifid="tabContent"&gt;
+  &lt;if-condition value="activeTab" eq="'home'" elseid="notHome"&gt;
+    &lt;h2&gt;Home&lt;/h2&gt;
+    &lt;p&gt;Welcome to the home page!&lt;/p&gt;
+  &lt;/if-condition&gt;
+  &lt;else-condition elseid="notHome"&gt;
+    &lt;condition-block ifid="tabAbout"&gt;
+      &lt;if-condition value="activeTab" eq="'about'" elseid="notAbout"&gt;
+        &lt;h2&gt;About&lt;/h2&gt;
+        &lt;p&gt;This is the about page.&lt;/p&gt;
+      &lt;/if-condition&gt;
+      &lt;else-condition elseid="notAbout"&gt;
+        &lt;h2&gt;Contact&lt;/h2&gt;
+        &lt;p&gt;Get in touch with us.&lt;/p&gt;
+      &lt;/else-condition&gt;
+    &lt;/condition-block&gt;
+  &lt;/else-condition&gt;
+&lt;/condition-block&gt;
+
+&lt;script src="statejs.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  watch('activeTab', () =&gt; {
+    setState({ conditions: true, datajs: true, showloader: false });
+  }, 'home');
+  initState();
+&lt;/script&gt;</code></pre>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+     PITFALLS & TROUBLESHOOTING
+     ═══════════════════════════════════════════ -->
+
+        <section class="doc-section" id="pitfalls">
+            <h2>Common Pitfalls</h2>
+
+            <h4>1. Forgetting <code>initState()</code></h4>
+            <p><strong>Symptom:</strong> Custom elements render as empty. Template expressions like
+                <code>{{count}}</code> appear as literal text.</p>
+            <p><strong>Fix:</strong> Always call <code>initState()</code> at the end of your script, after all
+                <code>watch()</code> declarations.</p>
+
+            <h4>2. Calling <code>watch()</code> after <code>initState()</code></h4>
+            <p><strong>Symptom:</strong> The variable exists but its initial value isn't shown on first render.</p>
+            <p><strong>Fix:</strong> Move all <code>watch()</code> calls before <code>initState()</code>.</p>
+
+            <h4>3. Using <code>&lt;for-loop&gt;</code> inside tables</h4>
+            <p><strong>Symptom:</strong> The for-loop content appears outside the table, or doesn't render at all.</p>
+            <p><strong>Fix:</strong> Use <code>data-loop</code> on the <code>&lt;tbody&gt;</code> element instead. See
+                <a href="#attr-data-loop" style="color:var(--accent)">data-loop section</a>.</p>
+
+            <h4>4. Using <code>{{}}</code> for loop variables</h4>
+            <p><strong>Symptom:</strong> <code>{{item.name}}</code> shows as <code>undefined</code> or throws an error
+                inside a for-loop template.</p>
+            <p><strong>Fix:</strong> Use <code>${item.name}</code> for loop-scoped variables. <code>{{}}</code> is for
+                global state only.</p>
+
+            <h4>5. <code>showloader: true</code> causing spinner flash</h4>
+            <p><strong>Symptom:</strong> A loading spinner briefly appears on every state change.</p>
+            <p><strong>Fix:</strong> Add <code>showloader: false</code> to your <code>setState()</code> calls for fast
+                updates.</p>
+
+            <h4>6. Mismatched IDs</h4>
+            <p><strong>Symptom:</strong> Loop or state element doesn't update when <code>setState()</code> is called.
+            </p>
+            <p><strong>Fix:</strong> Ensure <code>loopid</code>/<code>stateId</code>/<code>ifid</code> on the custom
+                element matches the <code>loopid</code>/<code>stateId</code> on the inner <code>&lt;template&gt;</code>
+                and matches the ID passed to <code>setState()</code>.</p>
+
+            <h4>7. <code>include-template</code> not loading</h4>
+            <p><strong>Symptom:</strong> The included component is blank.</p>
+            <p><strong>Fix:</strong> You must serve your files via an HTTP server. <code>&lt;include-template&gt;</code>
+                uses <code>fetch()</code>, which doesn't work with <code>file://</code> protocol.</p>
+
+            <h4>8. Template inside <code>data-loop</code> table placed inside <code>&lt;table&gt;</code> tags</h4>
+            <p><strong>Symptom:</strong> The <code>&lt;template&gt;</code> content is malformed or missing.</p>
+            <p><strong>Fix:</strong> The <code>&lt;template&gt;</code> element for data-loop must be placed
+                <strong>outside</strong> the <code>&lt;table&gt;</code> element.</p>
+        </section>
+
+        <section class="doc-section" id="errors">
+            <h2>Error Reference</h2>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Console Error</th>
+                        <th>Cause</th>
+                        <th>Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>for-loop error</code></td>
+                        <td>Array not found or template missing</td>
+                        <td>Ensure <code>array</code> attribute references a valid watched variable, and
+                            <code>&lt;template&gt;</code> has matching <code>loopid</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>Condition evaluation error</code></td>
+                        <td>Invalid expression in <code>value</code> attribute</td>
+                        <td>Check that the expression is valid JavaScript</td>
+                    </tr>
+                    <tr>
+                        <td><code>data-js error</code></td>
+                        <td>JS error in <code>data-js</code> attribute</td>
+                        <td>Debug the expression in the attribute value</td>
+                    </tr>
+                    <tr>
+                        <td><code>setState error</code></td>
+                        <td>An element's <code>render()</code> method threw</td>
+                        <td>Check for template or expression errors in the specified elements</td>
+                    </tr>
+                    <tr>
+                        <td><code>parseURL error</code></td>
+                        <td>Invalid URL passed to <code>parseURL()</code></td>
+                        <td>Ensure the URL string is valid</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="doc-section" id="llm-ref">
+            <h2>LLM Reference</h2>
+            <div class="llm-banner">
+                <i class="fa-solid fa-robot"></i>
+                <div class="llm-text">
+                    <h3>HTTL-S for AI Chatbots</h3>
+                    <p>Download a single Markdown file containing the entire HTTL-S API reference, optimized for pasting
+                        into LLM chatbots like ChatGPT, Claude, or Gemini.</p>
+                </div>
+                <a href="httl-s-llm-reference.md" download>Download .md</a>
+            </div>
+        </section>
+
+    </main>
+
+    <button class="back-to-top" aria-label="Back to top"><i class="fa-solid fa-arrow-up"></i></button>
+    <script src="js/docs.js"></script>
+</body>
+
+</html>
